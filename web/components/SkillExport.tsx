@@ -39,6 +39,8 @@ export const SkillExport: React.FC<SkillExportProps> = ({
   const [llmProgress, setLlmProgress] = useState<ProgressReport | null>(null);
   const [llmError, setLlmError] = useState<string | null>(null);
   const [descHighlight, setDescHighlight] = useState(false);
+  /** Live partial text being streamed — shown with a cursor in the preview */
+  const [streamingPartial, setStreamingPartial] = useState<string | null>(null);
 
   // Framework export state
   const [frameworkCode, setFrameworkCode] = useState<string>("");
@@ -108,6 +110,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
     setLlmProgress(null);
     setPrevDescription("");
     setNewDescription("");
+    setStreamingPartial(null);
     try {
       const { generateSkillDescription } = await import("../services/webllm");
       const languages = manifestJson?.metadata?.primary_languages ?? [];
@@ -121,8 +124,13 @@ export const SkillExport: React.FC<SkillExportProps> = ({
         repoName,
         languages,
         digest,
-        (report) => setLlmProgress(report)
+        (report) => setLlmProgress(report),
+        // Live chunk callback — update the preview with each new token
+        (partial) => setStreamingPartial(partial)
       );
+
+      // Generation done — clear streaming state and write final result
+      setStreamingPartial(null);
       const updated = displaySkillMd.replace(
         /description: ".*?"/s,
         `description: "${description.replace(/"/g, '\\"')}"`
@@ -135,6 +143,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
       setDescHighlight(true);
       setTimeout(() => setDescHighlight(false), 2500);
     } catch (err: any) {
+      setStreamingPartial(null);
       setLlmError(err.message ?? "AI generation failed.");
     } finally {
       setLlmLoading(false);
@@ -334,7 +343,11 @@ export const SkillExport: React.FC<SkillExportProps> = ({
           </div>
         </div>
         <div className="pt-10 h-full overflow-auto">
-          <MarkdownPreview content={displaySkillMd} highlightDescription={descHighlight} />
+          <MarkdownPreview
+            content={displaySkillMd}
+            highlightDescription={descHighlight}
+            streamingPartial={streamingPartial}
+          />
         </div>
       </div>
 
@@ -404,7 +417,16 @@ export const SkillExport: React.FC<SkillExportProps> = ({
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-const MarkdownPreview: React.FC<{ content: string; highlightDescription?: boolean }> = ({ content, highlightDescription }) => {
+/**
+ * MarkdownPreview renders SKILL.md with optional:
+ *  - streaming: live partial description being typed in (with blinking cursor)
+ *  - highlightDescription: purple flash after generation completes
+ */
+const MarkdownPreview: React.FC<{
+  content: string;
+  highlightDescription?: boolean;
+  streamingPartial?: string | null;
+}> = ({ content, highlightDescription, streamingPartial }) => {
   if (!content) {
     return (
       <pre className="p-4 text-xs leading-relaxed font-mono text-slate-300 whitespace-pre-wrap break-words select-all">
@@ -413,32 +435,76 @@ const MarkdownPreview: React.FC<{ content: string; highlightDescription?: boolea
     );
   }
 
-  // Split on the description line so we can highlight it separately
-  const descMatch = content.match(/(description: ".*?")/);
-  if (!descMatch || !highlightDescription) {
+  // While streaming: replace the description value live
+  const isStreaming = streamingPartial != null;
+  const descPattern = /description: "(.*?)"/s;
+  const descMatch = content.match(descPattern);
+
+  if (isStreaming && descMatch) {
+    const liveDesc = `description: "${streamingPartial}"`;
+    const [before, ...afterParts] = content.split(descMatch[0]);
+    const after = afterParts.join(descMatch[0]);
     return (
       <pre className="p-4 text-xs leading-relaxed font-mono text-slate-300 whitespace-pre-wrap break-words select-all">
-        {content}
+        {before}
+        <span
+          style={{
+            background: 'rgba(139,92,246,0.18)',
+            outline: '1px solid rgba(139,92,246,0.45)',
+            borderRadius: '3px',
+          }}
+        >
+          {liveDesc}
+          {/* Blinking cursor */}
+          <span
+            style={{
+              display: 'inline-block',
+              width: '0.55em',
+              height: '1.1em',
+              background: 'rgba(167,139,250,0.9)',
+              borderRadius: '1px',
+              marginLeft: '1px',
+              verticalAlign: 'text-bottom',
+              animation: 'skillCursorBlink 0.7s steps(1) infinite',
+            }}
+          />
+        </span>
+        {after}
+        <style>{`
+          @keyframes skillCursorBlink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+          }
+        `}</style>
       </pre>
     );
   }
 
-  const [before, ...afterParts] = content.split(descMatch[1]);
-  const after = afterParts.join(descMatch[1]);
+  // Post-generation highlight
+  if (highlightDescription && descMatch) {
+    const [before, ...afterParts] = content.split(descMatch[0]);
+    const after = afterParts.join(descMatch[0]);
+    return (
+      <pre className="p-4 text-xs leading-relaxed font-mono text-slate-300 whitespace-pre-wrap break-words select-all">
+        {before}
+        <span
+          style={{
+            background: 'rgba(139,92,246,0.25)',
+            outline: '1px solid rgba(139,92,246,0.5)',
+            borderRadius: '3px',
+            transition: 'background 2s ease, outline 2s ease',
+          }}
+        >
+          {descMatch[0]}
+        </span>
+        {after}
+      </pre>
+    );
+  }
+
   return (
     <pre className="p-4 text-xs leading-relaxed font-mono text-slate-300 whitespace-pre-wrap break-words select-all">
-      {before}
-      <span
-        style={{
-          background: 'rgba(139,92,246,0.25)',
-          outline: '1px solid rgba(139,92,246,0.5)',
-          borderRadius: '3px',
-          transition: 'background 2s ease, outline 2s ease',
-        }}
-      >
-        {descMatch[1]}
-      </span>
-      {after}
+      {content}
     </pre>
   );
 };

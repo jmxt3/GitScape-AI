@@ -84,7 +84,9 @@ export async function generateSkillDescription(
   repoName: string,
   languages: string[],
   digestSnippet: string,
-  onProgress?: (report: ProgressReport) => void
+  onProgress?: (report: ProgressReport) => void,
+  /** Called with each incremental token as it streams in */
+  onChunk?: (partial: string) => void
 ): Promise<string> {
   const engine = await getEngine(onProgress);
 
@@ -108,14 +110,25 @@ Requirements:
 Output ONLY the description text. No quotes, no extra formatting, no markdown.`;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const reply = await (engine as any).chat.completions.create({
+  const stream = await (engine as any).chat.completions.create({
     messages: [{ role: "user", content: prompt }],
     max_tokens: 180,
     temperature: 0.4,
     top_p: 0.9,
+    stream: true,
   });
 
-  return reply.choices[0]?.message?.content?.trim() ?? "";
+  let full = "";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  for await (const chunk of stream as AsyncIterable<any>) {
+    const delta = chunk.choices[0]?.delta?.content ?? "";
+    if (delta) {
+      full += delta;
+      onChunk?.(full);
+    }
+  }
+
+  return full.trim();
 }
 
 /** Dispose the engine to free GPU memory (optional, call on page unload if needed) */
