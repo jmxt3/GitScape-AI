@@ -944,6 +944,22 @@ const App: React.FC = () => {
       !error) ||
     (!isLoading && processedRepoName && digest));
 
+  // Clear all output when the user erases the repo URL
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (repoUrl.trim() !== "") return;
+    setDigest("");
+    setError(null);
+    setProcessedRepoName(undefined);
+    setRepoNameForFilename(null);
+    setCurrentDefaultBranch(null);
+    setFilesToRenderInDiagram([]);
+    setSkillMd("");
+    setManifestJson(null);
+    setDiagramData(null);
+    setRetryAfterSeconds(null);
+  }, [repoUrl]);
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-200 flex flex-col">
       {showConfetti && <ConfettiBurst />}
