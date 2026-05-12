@@ -78,6 +78,12 @@
       "sourceType": "github",
       "skillPath": "skills/cloud/google-cloud-waf-security/SKILL.md",
       "computedHash": "b49e3f41dd7758c3392cde1ff10fbed769d7e089cd8c4a8bf0c914749f1276e3"
+    },
+    "seo": {
+      "source": "addyosmani/web-quality-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo/SKILL.md",
+      "computedHash": "3d72168e266b759454b3e16028e7306ec716f21de6878cac7e98a0a3834ab5db"
     }
   }
 }
