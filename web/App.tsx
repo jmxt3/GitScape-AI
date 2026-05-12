@@ -47,6 +47,7 @@ const storeInLocalStorage = (key: string, value: string | null) => {
 // Two layers: large glowing embers + fine wire sparks with motion trails.
 interface FuseParticlesProps {
   progressPercent: number;
+  step: 1 | 2 | 3;
 }
 
 interface Particle {
@@ -54,28 +55,40 @@ interface Particle {
   y: number;
   vx: number;
   vy: number;
-  life: number;    // 1 → 0
+  life: number;
   decay: number;
   size: number;
-  hue: number;     // 0–60: deep red → yellow
-  type: "ember" | "spark"; // embers are big/slow, sparks are thin/fast
+  hue: number;
+  type: "ember" | "spark";
 }
 
-const FuseParticles: React.FC<FuseParticlesProps> = ({ progressPercent }) => {
+// Hue ranges per step: violet | green | amber
+const STEP_EMBER_HUE: Record<1 | 2 | 3, [number, number]> = {
+  1: [240, 55],  // violet → lavender
+  2: [130, 35],  // emerald → lime
+  3: [30, 30],  // amber → yellow
+};
+const STEP_SPARK_HUE: Record<1 | 2 | 3, [number, number]> = {
+  1: [270, 40],  // violet-white
+  2: [140, 30],  // green-white
+  3: [40, 20],  // amber-white
+};
+
+const FuseParticles: React.FC<FuseParticlesProps> = ({ progressPercent, step }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const animFrameRef = useRef<number>(0);
   const prevPercentRef = useRef<number>(progressPercent);
 
-  // Smaller canvas — sparks still have room but effect is more compact
   const CANVAS_W = 120;
   const CANVAS_H = 80;
   const OX = CANVAS_W / 2;
   const OY = CANVAS_H / 2;
 
-  // Brand violet: hsl ~262°. Sparks range from deep purple → violet → lavender-white.
   const spawn = (isMoving: boolean) => {
-    // ── Embers (glowing violet orbs) ─────────────────────────────────────
+    const [eBase, eRange] = STEP_EMBER_HUE[step];
+    const [sBase, sRange] = STEP_SPARK_HUE[step];
+
     const emberCount = isMoving ? 10 : 4;
     for (let i = 0; i < emberCount; i++) {
       const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.6;
@@ -88,13 +101,11 @@ const FuseParticles: React.FC<FuseParticlesProps> = ({ progressPercent }) => {
         life: 1,
         decay: isMoving ? 0.022 + Math.random() * 0.038 : 0.035 + Math.random() * 0.055,
         size: isMoving ? 1.4 + Math.random() * 2.6 : 0.7 + Math.random() * 1.5,
-        // Mostly violet (262°), some blue-violet (240°) and magenta-purple (290°)
-        hue: 240 + Math.random() * 55,
+        hue: eBase + Math.random() * eRange,
         type: "ember",
       });
     }
 
-    // ── Wire sparks (thin violet-white streaks) ───────────────────────────
     const sparkCount = isMoving ? 8 : 2;
     for (let i = 0; i < sparkCount; i++) {
       const angle = (Math.random() - 0.5) * Math.PI * 2;
@@ -107,8 +118,7 @@ const FuseParticles: React.FC<FuseParticlesProps> = ({ progressPercent }) => {
         life: 1,
         decay: isMoving ? 0.045 + Math.random() * 0.065 : 0.08 + Math.random() * 0.10,
         size: 0.5 + Math.random() * 1.1,
-        // Bright lavender-white (270–310°, high lightness) for the spark streaks
-        hue: 270 + Math.random() * 40,
+        hue: sBase + Math.random() * sRange,
         type: "spark",
       });
     }
@@ -362,67 +372,73 @@ const ConfettiBurst: React.FC = () => {
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ─── Processing messages ──────────────────────────────────────────────────────
-// 50 rotating messages shown while the AI digests the repo.
-// Tone: inspiring, sarcastic, witty, smart — never boring.
-const PROCESSING_MESSAGES = [
-  // Sarcastic / self-aware
+// ─── Processing messages per step ────────────────────────────────────────────
+const DIGEST_MESSAGES = [
   "🧠 Teaching the AI to read… again.",
-  "☕ The AI needed a coffee break. It's back.",
   "🕵️ Snooping through someone else's codebase. Totally normal.",
-  "🦥 Your internet is fast. The API is… not.",
-  "🙃 Definitely not just vibing. Real work happening.",
-  "📦 Unpacking a lot of files like it's Christmas morning.",
+  "📦 Unpacking files like it's Christmas morning.",
   "🫠 The AI is fine. Everything is fine.",
   "😤 Parsing indentation crimes so you don't have to.",
-  "🔮 Predicting what your code does better than you can.",
-  // Inspiring / motivational
-  "🚀 Every great agent starts with great context.",
-  "💡 Converting chaos into clarity, one file at a time.",
-  "🌱 Your repo is about to become infinitely more useful.",
-  "⚡ Speed is a feature. We're building it.",
-  "🎯 Precision-extracting everything that matters.",
-  "🔥 Building the knowledge layer your agents deserve.",
-  "🏗️ Architecture understood. Skill forming.",
-  "🌍 One repo at a time, making AI smarter.",
-  "✨ Turning raw code into agent superpowers.",
-  "🧬 Mapping the DNA of your codebase.",
-  // Nerdy / technical
-  "🌳 Traversing your file tree like a pro.",
-  "📡 Pinging the server. It pinged back. Friendship.",
-  "🔬 Analyzing dependencies, exports, and vibes.",
-  "💾 Reading files faster than you can say 'merge conflict'.",
-  "🗜️ Compressing 10,000 tokens of insight.",
-  "🧮 Running token math so your agents don't have to.",
-  "🏎️ Tokenising at F1 speeds. Buckle up.",
-  "📊 Building the world's most useful repo summary.",
-  "🔗 Connecting the dots between every module.",
-  "🧩 Fitting all the pieces together.",
-  // Funny / pop-culture
-  "🧙 One does not simply digest a monorepo.",
-  "👾 Loading… loading… nope, still loading.",
-  "🎮 Press A to skip. Just kidding. There's no A.",
+  "🌳 Traversing your file tree like a lost tourist.",
   "🤖 The robots are reading. Please hold.",
   "🎬 This is the part where the progress bar lies to you.",
-  "📺 Meanwhile, AI has already read 400 files.",
-  "🎲 Statistically, your README is better than average.",
-  "🦄 Rare: a codebase with actual comments.",
-  "🐉 Slaying the complexity dragon, one function at a time.",
-  "🎸 Your code has good vibes. The AI agrees.",
-  // Clever / product-aware
-  "🛠️ Crafting a skill your future agents will thank you for.",
+  "💾 Reading files faster than you can say 'merge conflict'.",
+  "🧙 One does not simply digest a monorepo.",
+  "🦥 Your internet is fast. The API is… not.",
+  "🔮 Predicting what your code does better than you can.",
+  "🔬 Analyzing dependencies, exports, and vibes.",
+];
+
+const VISUALIZATION_MESSAGES = [
+  "🌿 Mapping every branch, literally.",
   "🗺️ Drawing the map so your AI never gets lost.",
-  "📚 Condensing months of dev work into instant context.",
-  "🔑 Unlocking your repo's hidden intelligence.",
-  "🏆 This digest will make your AI dangerously capable.",
-  "🌐 Turning a GitHub URL into agent knowledge.",
-  "⚙️ Extracting signal from the noise.",
+  "📐 Measuring the architecture. Ruler in hand.",
+  "🎨 Making your spaghetti code look like modern art.",
+  "🧩 Fitting all the pieces into a pretty picture.",
+  "🔗 Connecting the dots between every module.",
+  "📊 Turning folder chaos into structured beauty.",
+  "🖼️ Rendering your repo like a Renaissance painting.",
+  "🌐 Building a dependency graph that would make GraphQL jealous.",
+  "🔭 Zooming out to see the full picture.",
+];
+
+const SKILL_MESSAGES = [
+  "✨ Polishing the skill until it sparkles.",
+  "🏆 This skill will make your AI dangerously capable.",
   "🎓 Your agents are about to get a PhD in this codebase.",
   "💬 Soon your AI will know this repo better than you do.",
   "🧭 Orienting your agents. Direction: expert.",
+  "🔑 Unlocking your repo's hidden intelligence.",
+  "🛠️ Crafting a skill your future agents will thank you for.",
+  "⚙️ Extracting signal from the noise, bottling the magic.",
+  "🌱 Turning raw code into agent superpowers.",
+  "📚 Condensing months of dev work into instant context.",
 ];
 
 const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
+
+// Returns current step (1, 2, or 3) based on progress percent
+const getProgressStep = (pct: number): 1 | 2 | 3 => {
+  if (pct < 34) return 1;
+  if (pct < 67) return 2;
+  return 3;
+};
+
+// Returns the bar gradient for the current step
+const getStepGradient = (pct: number): string => {
+  const step = getProgressStep(pct);
+  if (step === 1) return "linear-gradient(90deg, #3b0764 0%, #6d28d9 40%, #7c3aed 70%, #a78bfa 90%, #ede9fe 98%)";
+  if (step === 2) return "linear-gradient(90deg, #064e3b 0%, #059669 40%, #10b981 70%, #6ee7b7 90%, #d1fae5 98%)";
+  return "linear-gradient(90deg, #78350f 0%, #d97706 40%, #f59e0b 70%, #fcd34d 90%, #fef3c7 98%)";
+};
+
+// Returns the glow shadow for the current step
+const getStepGlow = (pct: number): string => {
+  const step = getProgressStep(pct);
+  if (step === 1) return "0 0 8px 2px rgba(124,58,237,0.6)";
+  if (step === 2) return "0 0 8px 2px rgba(16,185,129,0.6)";
+  return "0 0 8px 2px rgba(245,158,11,0.6)";
+};
 // ─────────────────────────────────────────────────────────────────────────────
 
 const App: React.FC = () => {
@@ -678,8 +694,9 @@ const App: React.FC = () => {
     setProgressVisible(true);
     setProgressFading(false);
 
-    // Start the fuse ticker immediately so the bar visibly burns from the start
+    // Start the fuse ticker — also rotates step-aware jokes every 3s
     if (progressTickerRef.current) clearInterval(progressTickerRef.current);
+    let msgTick = 0;
     progressTickerRef.current = setInterval(() => {
       setProgressPercent((prev) => {
         if (prev >= 88) {
@@ -687,9 +704,19 @@ const App: React.FC = () => {
           return prev;
         }
         const remaining = 88 - prev;
-        const step = Math.max(0.3, remaining * 0.04);
-        return Math.min(88, prev + step);
+        const stepSize = Math.max(0.3, remaining * 0.04);
+        return Math.min(88, prev + stepSize);
       });
+      // Rotate joke every ~3 ticks (700ms × 3 ≈ 2.1s)
+      msgTick++;
+      if (msgTick % 3 === 0) {
+        setProgressPercent((pct) => {
+          const s = getProgressStep(pct);
+          const pool = s === 1 ? DIGEST_MESSAGES : s === 2 ? VISUALIZATION_MESSAGES : SKILL_MESSAGES;
+          setProgressMessage(pick(pool));
+          return pct;
+        });
+      }
     }, 700);
 
     setProcessedRepoName(undefined);
@@ -750,7 +777,7 @@ const App: React.FC = () => {
     }
 
     const initiateRequest = async () => {
-      setProgressMessage(pick(PROCESSING_MESSAGES));
+      setProgressMessage(pick(DIGEST_MESSAGES));
       // Ticker is already running from init — no need to restart it here
 
       const apiHost: string = __API_HOST__;
@@ -1025,12 +1052,8 @@ const App: React.FC = () => {
           >
             {progressVisible && (
               <div
-                className="w-full mb-3 relative"
-                style={{
-                  height: "10px",
-                  opacity: progressFading ? 0 : 1,
-                  transition: "opacity 0.7s ease-out",
-                }}
+                className="w-full mb-4 relative"
+                style={{ opacity: progressFading ? 0 : 1, transition: "opacity 0.7s ease-out" }}
                 aria-live="polite"
                 role="progressbar"
                 aria-valuenow={progressPercent}
@@ -1038,28 +1061,60 @@ const App: React.FC = () => {
                 aria-valuemax={100}
                 aria-label="Generation progress"
               >
-                {/* Fuse track — dark charred rope texture */}
+                {/* Step labels */}
+                <div className="flex justify-between mb-2 px-0.5">
+                  {[
+                    { label: "Code Digest", threshold: 0, activeColor: "text-violet-400", inactiveColor: "text-slate-600" },
+                    { label: "Code Visualization", threshold: 34, activeColor: "text-emerald-400", inactiveColor: "text-slate-600" },
+                    { label: "Skill Export", threshold: 67, activeColor: "text-amber-400", inactiveColor: "text-slate-600" },
+                  ].map((step, i) => {
+                    const isActive = progressPercent >= step.threshold;
+                    const isCurrent = getProgressStep(progressPercent) === i + 1;
+                    return (
+                      <div key={step.label} className="flex flex-col items-center gap-1" style={{ width: "33.3%", alignItems: i === 0 ? "flex-start" : i === 2 ? "flex-end" : "center" }}>
+                        <span
+                          className={`text-[10px] font-semibold tracking-wide transition-all duration-500 ${isActive ? step.activeColor : step.inactiveColor
+                            } ${isCurrent ? "opacity-100" : isActive ? "opacity-70" : "opacity-40"}`}
+                        >
+                          {step.label}
+                        </span>
+                        <div
+                          className="w-1.5 h-1.5 rounded-full transition-all duration-500"
+                          style={{
+                            background: isActive
+                              ? i === 0 ? "#a78bfa" : i === 1 ? "#34d399" : "#fbbf24"
+                              : "#334155",
+                            boxShadow: isCurrent
+                              ? i === 0 ? "0 0 6px 2px rgba(167,139,250,0.8)" : i === 1 ? "0 0 6px 2px rgba(52,211,153,0.8)" : "0 0 6px 2px rgba(251,191,36,0.8)"
+                              : "none",
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Fuse track */}
                 <div
-                  className="absolute inset-0 rounded-full"
-                  style={{
-                    background: "linear-gradient(90deg, #0d0a1a 0%, #1a1030 50%, #0d0a1a 100%)",
-                    boxShadow: "inset 0 1px 3px rgba(0,0,0,0.8)",
-                  }}
-                />
-                {/* Burnt portion — glowing orange-to-red gradient */}
-                <div
-                  className="absolute inset-y-0 left-0 rounded-full"
-                  style={{
-                    width: `${progressPercent}%`,
-                    background: "linear-gradient(90deg, #3b0764 0%, #6d28d9 40%, #7c3aed 70%, #a78bfa 90%, #ede9fe 98%)",
-                    boxShadow: "0 0 8px 2px rgba(124,58,237,0.5)",
-                    transition: "width 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                  }}
-                />
-                {/* Spark tip — canvas particle emitter at the burning edge */}
-                {progressPercent < 100 && (
-                  <FuseParticles progressPercent={progressPercent} />
-                )}
+                  className="relative rounded-full"
+                  style={{ height: "10px", background: "linear-gradient(90deg, #0d0a1a 0%, #1a1030 50%, #0d0a1a 100%)", boxShadow: "inset 0 1px 3px rgba(0,0,0,0.8)" }}
+                >
+                  {/* Filled portion with step-aware color */}
+                  <div
+                    className="absolute inset-y-0 left-0 rounded-full"
+                    style={{
+                      width: `${progressPercent}%`,
+                      background: getStepGradient(progressPercent),
+                      boxShadow: getStepGlow(progressPercent),
+                      transition: "width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 1s ease, box-shadow 1s ease",
+                    }}
+                  />
+                  {/* Spark tip */}
+                  {progressPercent < 100 && (
+                    <FuseParticles progressPercent={progressPercent} step={getProgressStep(progressPercent)} />
+                  )}
+                </div>
+
                 <style>{`
                   @keyframes fuseFlicker {
                     0%   { transform: scale(1);   opacity: 1; }
@@ -1077,7 +1132,14 @@ const App: React.FC = () => {
               isLoading={isLoading}
             />
             {isLoading && progressMessage && (
-              <p className="mt-3 text-sm text-violet-400 text-center">
+              <p
+                className={`mt-3 text-sm text-center transition-colors duration-700 ${getProgressStep(progressPercent) === 1
+                    ? "text-violet-400"
+                    : getProgressStep(progressPercent) === 2
+                      ? "text-emerald-400"
+                      : "text-amber-400"
+                  }`}
+              >
                 {progressMessage}
               </p>
             )}
