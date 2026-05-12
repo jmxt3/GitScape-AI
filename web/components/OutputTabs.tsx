@@ -70,50 +70,55 @@ export const OutputTabs: React.FC<OutputTabsProps> = ({
   return (
     <div className="mt-8 flex flex-col gap-8">
 
-      {/* ── Code Digest ───────────────────────────────────────────────── */}
-      <section
-        id="section-code-digest"
-        className="bg-slate-800/80 backdrop-blur-sm p-6 rounded-lg shadow-xl border border-slate-700"
-      >
-        <SectionHeader
-          icon={<CodeIcon />}
-          title="Code Digest"
-          accentClass="text-violet-400"
-          dotClass="bg-violet-500/15 text-violet-400"
-        />
-        <DigestOutput
-          digest={digest}
-          isLoading={isLoadingDigest}
-          repoNameForFilename={repoNameForFilename}
-        />
-      </section>
+      {/* ── Code Digest + Code Visualization (responsive row) ─────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-      {/* ── Code Visualization ────────────────────────────────────────── */}
-      <section
-        id="section-code-visualization"
-        className="bg-slate-800/80 backdrop-blur-sm p-6 rounded-lg shadow-xl border border-slate-700"
-      >
-        <SectionHeader
-          icon={<DiagramIcon />}
-          title="Code Visualization"
-          accentClass="text-green-400"
-          dotClass="bg-green-500/15 text-green-400"
-        />
-        <div className="h-[calc(70vh_-_40px)] max-h-[700px] min-h-[550px] w-full">
-          {diagramData && repoName && defaultBranch ? (
-            <Diagram
-              data={diagramData}
-              repoName={repoName}
-              defaultBranch={defaultBranch}
-              onOpenFullscreenModal={onOpenDiagramFullscreenModal}
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full text-slate-500 text-sm">
-              Visualization data not available or still loading.
-            </div>
-          )}
-        </div>
-      </section>
+        {/* Code Digest */}
+        <section
+          id="section-code-digest"
+          className="bg-slate-800/80 backdrop-blur-sm p-6 rounded-lg shadow-xl border border-slate-700 h-full"
+        >
+          <SectionHeader
+            icon={<CodeIcon />}
+            title="Code Digest"
+            accentClass="text-violet-400"
+            dotClass="bg-violet-500/15 text-violet-400"
+          />
+          <DigestOutput
+            digest={digest}
+            isLoading={isLoadingDigest}
+            repoNameForFilename={repoNameForFilename}
+          />
+        </section>
+
+        {/* Code Visualization */}
+        <section
+          id="section-code-visualization"
+          className="bg-slate-800/80 backdrop-blur-sm p-6 rounded-lg shadow-xl border border-slate-700 h-full"
+        >
+          <SectionHeader
+            icon={<DiagramIcon />}
+            title="Code Visualization"
+            accentClass="text-green-400"
+            dotClass="bg-green-500/15 text-green-400"
+          />
+          <div className="h-[500px] lg:h-[calc(100%-3.5rem)] min-h-[400px] w-full">
+            {diagramData && repoName && defaultBranch ? (
+              <Diagram
+                data={diagramData}
+                repoName={repoName}
+                defaultBranch={defaultBranch}
+                onOpenFullscreenModal={onOpenDiagramFullscreenModal}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-slate-500 text-sm">
+                Visualization data not available or still loading.
+              </div>
+            )}
+          </div>
+        </section>
+
+      </div>
 
       {/* ── Skill Export ──────────────────────────────────────────────── */}
       <section

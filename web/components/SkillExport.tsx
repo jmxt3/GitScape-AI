@@ -27,7 +27,6 @@ export const SkillExport: React.FC<SkillExportProps> = ({
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
-  const [copyCmdState, setCopyCmdState] = useState<"idle" | "copied">("idle");
 
 
   // WebLLM state
@@ -51,9 +50,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
     ? new Date(manifestJson.metadata.generated_at).toLocaleString()
     : "—";
 
-  const installCmd = repoUrl
-    ? `npx skills add ${repoUrl}`
-    : "npx skills add <repo-url>";
+
 
   // ─── Handlers ───────────────────────────────────────────────────────────────
 
@@ -90,13 +87,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
     } catch (_) { }
   }, [displaySkillMd]);
 
-  const handleCopyCmd = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(installCmd);
-      setCopyCmdState("copied");
-      setTimeout(() => setCopyCmdState("idle"), 2000);
-    } catch (_) { }
-  }, [installCmd]);
+
 
   const handleGenerateDescription = useCallback(async () => {
     if (!webGPUSupported) return;
@@ -153,41 +144,6 @@ export const SkillExport: React.FC<SkillExportProps> = ({
   return (
     <div className="flex flex-col gap-4 h-full">
 
-      {/* Install banner */}
-      <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 flex flex-col gap-3">
-        <div className="flex items-start gap-3">
-          <div className="mt-0.5 p-1.5 rounded-lg bg-amber-500/15">
-            <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-4M9 3l6 6M9 3v6h6" />
-            </svg>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-200 mb-0.5">Install this skill</p>
-            <p className="text-xs text-slate-400">
-              Run one command — works with Cursor, Claude Code, Copilot &amp; more.
-            </p>
-            <p className="text-[10px] text-slate-500 mt-1">
-              ⚠️ Requires the SKILL.md to be committed to the repo first.{" "}
-              <span className="text-slate-400">Download the .zip below and push it to your repo to enable this command.</span>
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 bg-slate-950/70 border border-slate-700 rounded-lg px-3 py-2.5">
-          <span className="text-slate-500 text-xs font-mono select-none">$</span>
-          <code className="flex-1 text-xs font-mono text-amber-300 truncate select-all">{installCmd}</code>
-          <button
-            id="skill-copy-install-cmd-btn"
-            onClick={handleCopyCmd}
-            className="shrink-0 flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-md bg-slate-700 hover:bg-slate-600 text-slate-300 border border-slate-600 transition-all duration-150"
-          >
-            {copyCmdState === "copied" ? (
-              <><svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg><span className="text-green-400">Copied</span></>
-            ) : (
-              <><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>Copy</>
-            )}
-          </button>
-        </div>
-      </div>
 
       {/* Metadata pills */}
       <div className="flex flex-wrap items-center gap-2 text-xs">
