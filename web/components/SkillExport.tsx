@@ -14,7 +14,7 @@ interface SkillExportProps {
 }
 
 const API_HOST = "api.gitscape.ai";
-type Framework = "adk" | "agno";
+
 
 export const SkillExport: React.FC<SkillExportProps> = ({
   skillMd,
@@ -28,8 +28,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
   const [copyCmdState, setCopyCmdState] = useState<"idle" | "copied">("idle");
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [advancedPane, setAdvancedPane] = useState<"manifest" | "adk" | "agno">("manifest");
+
 
   // WebLLM state
   const [skillMdOverride, setSkillMdOverride] = useState<string>("");
@@ -42,14 +41,10 @@ export const SkillExport: React.FC<SkillExportProps> = ({
   /** Live partial text being streamed — shown with a cursor in the preview */
   const [streamingPartial, setStreamingPartial] = useState<string | null>(null);
 
-  // Framework export state
-  const [frameworkCode, setFrameworkCode] = useState<string>("");
-  const [frameworkLoading, setFrameworkLoading] = useState(false);
-  const [frameworkError, setFrameworkError] = useState<string | null>(null);
-  const [loadedFramework, setLoadedFramework] = useState<Framework | null>(null);
+
 
   const displaySkillMd = skillMdOverride || skillMd;
-  const manifestStr = manifestJson ? JSON.stringify(manifestJson, null, 2) : "{}";
+
   const languageList = manifestJson?.metadata?.primary_languages?.join(", ") ?? "—";
   const filesAnalyzed = manifestJson?.metadata?.files_analyzed ?? "—";
   const generatedAt = manifestJson?.metadata?.generated_at
@@ -151,52 +146,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
     }
   }, [manifestJson, repoNameForFilename, digest, displaySkillMd]);
 
-  const handleLoadFramework = useCallback(async (fw: Framework) => {
-    setAdvancedPane(fw);
-    if (loadedFramework === fw && frameworkCode) return;
-    setFrameworkLoading(true);
-    setFrameworkError(null);
-    setFrameworkCode("");
-    setLoadedFramework(null);
-    try {
-      const apiUrl = new URL(`https://${API_HOST}/export/${fw}`);
-      apiUrl.searchParams.append("repo_url", encodeURIComponent(repoUrl));
-      const response = await fetch(apiUrl.toString());
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const text = await response.text();
-      setFrameworkCode(text);
-      setLoadedFramework(fw);
-    } catch (err: any) {
-      setFrameworkError(err.message ?? "Failed to load framework export.");
-    } finally {
-      setFrameworkLoading(false);
-    }
-  }, [repoUrl, loadedFramework, frameworkCode]);
 
-  const handleDownloadFramework = useCallback(() => {
-    if (!frameworkCode || !loadedFramework) return;
-    const blob = new Blob([frameworkCode], { type: "text/x-python" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${repoNameForFilename ?? "repo"}-${loadedFramework}-skill.py`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
-  }, [frameworkCode, repoNameForFilename, loadedFramework]);
-
-  const advancedContent = () => {
-    if (advancedPane === "manifest") return <JsonPreview content={manifestStr} />;
-    if (frameworkLoading) return (
-      <div className="flex items-center justify-center h-48 gap-3 text-slate-400">
-        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-        <span className="text-sm">Generating {advancedPane.toUpperCase()} export…</span>
-      </div>
-    );
-    if (frameworkError) return <div className="p-4 text-xs text-red-400">{frameworkError}</div>;
-    if (frameworkCode) return <PythonPreview content={frameworkCode} />;
-    return <div className="flex items-center justify-center h-48 text-slate-500 text-sm">Click a framework button to generate.</div>;
-  };
 
   // ─── Render ─────────────────────────────────────────────────────────────────
 
@@ -351,58 +301,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
         </div>
       </div>
 
-      {/* Advanced collapsible */}
-      <div className="rounded-xl border border-slate-700/60 overflow-hidden">
-        <button
-          id="skill-advanced-toggle"
-          onClick={() => setShowAdvanced((v) => !v)}
-          className="w-full flex items-center justify-between px-4 py-2.5 bg-slate-900/60 hover:bg-slate-800/60 transition-colors text-xs text-slate-400 hover:text-slate-300"
-        >
-          <span className="flex items-center gap-2">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-            Advanced exports
-            <span className="text-[10px] text-slate-600">manifest.json · Google ADK · Agno</span>
-          </span>
-          <svg className={`w-3.5 h-3.5 transition-transform duration-200 ${showAdvanced ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-        </button>
 
-        {showAdvanced && (
-          <div className="border-t border-slate-700/60">
-            {/* Advanced sub-tabs */}
-            <div className="flex gap-1 bg-slate-900/40 px-3 pt-2 pb-0">
-              {(["manifest", "adk", "agno"] as const).map((p) => (
-                <button
-                  key={p}
-                  id={`skill-adv-tab-${p}`}
-                  onClick={() => {
-                    if (p === "adk" || p === "agno") handleLoadFramework(p);
-                    else setAdvancedPane("manifest");
-                  }}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-t-md transition-all duration-150 border-b-2 ${advancedPane === p
-                    ? "bg-slate-800 text-slate-200 border-amber-500/60"
-                    : "text-slate-500 hover:text-slate-300 border-transparent"
-                    }`}
-                >
-                  {p === "manifest" ? "manifest.json" : p === "adk" ? "Google ADK" : "Agno"}
-                </button>
-              ))}
-              {(advancedPane === "adk" || advancedPane === "agno") && frameworkCode && (
-                <button
-                  id="skill-download-py-btn"
-                  onClick={handleDownloadFramework}
-                  className="ml-auto mb-1 flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all duration-150"
-                >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                  Download .py
-                </button>
-              )}
-            </div>
-            <div className="bg-slate-950 max-h-80 overflow-auto border-t border-slate-700/60">
-              {advancedContent()}
-            </div>
-          </div>
-        )}
-      </div>
 
       {/* Footer */}
       <p className="text-xs text-slate-500 text-center">
@@ -508,39 +407,4 @@ const MarkdownPreview: React.FC<{
   );
 };
 
-const JsonPreview: React.FC<{ content: string }> = ({ content }) => (
-  <pre
-    className="p-4 text-xs leading-relaxed font-mono whitespace-pre-wrap break-words select-all"
-    dangerouslySetInnerHTML={{ __html: colorizeJson(content) }}
-  />
-);
 
-const PythonPreview: React.FC<{ content: string }> = ({ content }) => (
-  <pre
-    className="p-4 text-xs leading-relaxed font-mono whitespace-pre-wrap break-words select-all"
-    dangerouslySetInnerHTML={{ __html: colorizePython(content) }}
-  />
-);
-
-function colorizeJson(json: string): string {
-  return json
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(
-      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
-      (match) => {
-        let cls = "color:#6ee7b7";
-        if (/^"/.test(match)) cls = /:$/.test(match) ? "color:#93c5fd" : "color:#fde68a";
-        else if (/true|false/.test(match)) cls = "color:#c084fc";
-        else if (/null/.test(match)) cls = "color:#94a3b8";
-        return `<span style="${cls}">${match}</span>`;
-      }
-    );
-}
-
-function colorizePython(code: string): string {
-  const escaped = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  return escaped
-    .replace(/("""[\s\S]*?"""|'''[\s\S]*?'''|"[^"]*"|'[^']*')/g, `<span style="color:#fde68a">$1</span>`)
-    .replace(/\b(from|import|def|class|return|if|else|elif|for|in|not|and|or|True|False|None|async|await|with|as|raise|try|except|finally|pass|lambda|yield|global|nonlocal)\b/g, `<span style="color:#93c5fd">$1</span>`)
-    .replace(/(#[^\n]*)/g, `<span style="color:#6b7280">$1</span>`);
-}

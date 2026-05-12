@@ -17,13 +17,13 @@ export default defineConfig(({ mode }) => {
         }
       },
       build: {
+        chunkSizeWarningLimit: 7000,
         rollupOptions: {
           output: {
             manualChunks: {
               vendor: ['react', 'react-dom'],
               d3: ['d3'],
               markdown: ['react-markdown', 'rehype-highlight'],
-              google: ['@google/genai'],
               webllm: ['@mlc-ai/web-llm'],
             }
           }

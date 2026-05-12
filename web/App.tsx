@@ -159,11 +159,11 @@ const FuseParticles: React.FC<FuseParticlesProps> = ({ progressPercent }) => {
 
       // ── Core flame glow (violet → purple → white-hot centre) ─────────────
       const coreGlow = ctx.createRadialGradient(OX, OY, 0, OX, OY, 14);
-      coreGlow.addColorStop(0,   "rgba(255,255,255,1)");      // white-hot core
+      coreGlow.addColorStop(0, "rgba(255,255,255,1)");      // white-hot core
       coreGlow.addColorStop(0.15, "rgba(216,180,254,0.95)");  // violet-200
-      coreGlow.addColorStop(0.4,  "rgba(139,92,246,0.80)");   // violet-500
+      coreGlow.addColorStop(0.4, "rgba(139,92,246,0.80)");   // violet-500
       coreGlow.addColorStop(0.75, "rgba(109,40,217,0.35)");   // violet-700
-      coreGlow.addColorStop(1,   "transparent");
+      coreGlow.addColorStop(1, "transparent");
       ctx.beginPath();
       ctx.arc(OX, OY, 14, 0, Math.PI * 2);
       ctx.fillStyle = coreGlow;
@@ -217,7 +217,7 @@ const FuseParticles: React.FC<FuseParticlesProps> = ({ progressPercent }) => {
 
     animFrameRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(animFrameRef.current);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progressPercent]);
 
   return (
@@ -272,7 +272,7 @@ const ConfettiBurst: React.FC = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    canvas.width  = window.innerWidth;
+    canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
     const COUNT = 320;
@@ -360,6 +360,69 @@ const ConfettiBurst: React.FC = () => {
     />
   );
 };
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─── Processing messages ──────────────────────────────────────────────────────
+// 50 rotating messages shown while the AI digests the repo.
+// Tone: inspiring, sarcastic, witty, smart — never boring.
+const PROCESSING_MESSAGES = [
+  // Sarcastic / self-aware
+  "🧠 Teaching the AI to read… again.",
+  "☕ The AI needed a coffee break. It's back.",
+  "🕵️ Snooping through someone else's codebase. Totally normal.",
+  "🦥 Your internet is fast. The API is… not.",
+  "🙃 Definitely not just vibing. Real work happening.",
+  "📦 Unpacking a lot of files like it's Christmas morning.",
+  "🫠 The AI is fine. Everything is fine.",
+  "😤 Parsing indentation crimes so you don't have to.",
+  "🔮 Predicting what your code does better than you can.",
+  // Inspiring / motivational
+  "🚀 Every great agent starts with great context.",
+  "💡 Converting chaos into clarity, one file at a time.",
+  "🌱 Your repo is about to become infinitely more useful.",
+  "⚡ Speed is a feature. We're building it.",
+  "🎯 Precision-extracting everything that matters.",
+  "🔥 Building the knowledge layer your agents deserve.",
+  "🏗️ Architecture understood. Skill forming.",
+  "🌍 One repo at a time, making AI smarter.",
+  "✨ Turning raw code into agent superpowers.",
+  "🧬 Mapping the DNA of your codebase.",
+  // Nerdy / technical
+  "🌳 Traversing your file tree like a pro.",
+  "📡 Pinging the server. It pinged back. Friendship.",
+  "🔬 Analyzing dependencies, exports, and vibes.",
+  "💾 Reading files faster than you can say 'merge conflict'.",
+  "🗜️ Compressing 10,000 tokens of insight.",
+  "🧮 Running token math so your agents don't have to.",
+  "🏎️ Tokenising at F1 speeds. Buckle up.",
+  "📊 Building the world's most useful repo summary.",
+  "🔗 Connecting the dots between every module.",
+  "🧩 Fitting all the pieces together.",
+  // Funny / pop-culture
+  "🧙 One does not simply digest a monorepo.",
+  "👾 Loading… loading… nope, still loading.",
+  "🎮 Press A to skip. Just kidding. There's no A.",
+  "🤖 The robots are reading. Please hold.",
+  "🎬 This is the part where the progress bar lies to you.",
+  "📺 Meanwhile, AI has already read 400 files.",
+  "🎲 Statistically, your README is better than average.",
+  "🦄 Rare: a codebase with actual comments.",
+  "🐉 Slaying the complexity dragon, one function at a time.",
+  "🎸 Your code has good vibes. The AI agrees.",
+  // Clever / product-aware
+  "🛠️ Crafting a skill your future agents will thank you for.",
+  "🗺️ Drawing the map so your AI never gets lost.",
+  "📚 Condensing months of dev work into instant context.",
+  "🔑 Unlocking your repo's hidden intelligence.",
+  "🏆 This digest will make your AI dangerously capable.",
+  "🌐 Turning a GitHub URL into agent knowledge.",
+  "⚙️ Extracting signal from the noise.",
+  "🎓 Your agents are about to get a PhD in this codebase.",
+  "💬 Soon your AI will know this repo better than you do.",
+  "🧭 Orienting your agents. Direction: expert.",
+];
+
+const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
 // ─────────────────────────────────────────────────────────────────────────────
 
 const App: React.FC = () => {
@@ -492,7 +555,7 @@ const App: React.FC = () => {
       // Show digest immediately — don't keep user waiting for the tree fetch.
       setDigest(markdownDigest);
       setCurrentDefaultBranch(defaultBranchFromFetch);
-      setProgressMessage("Digest ready!");
+      setProgressMessage("🎉 Your skill digest is ready!");
       if (progressTickerRef.current) clearInterval(progressTickerRef.current);
       setProgressPercent(100);
       setIsLoading(false);
@@ -568,7 +631,7 @@ const App: React.FC = () => {
         setTimeout(() => {
           try {
             storeInLocalStorage(cacheKey, JSON.stringify(repoDataToCache));
-          } catch (e) {}
+          } catch (e) { }
         }, 0);
       }
     },
@@ -596,7 +659,7 @@ const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setDigest("");
-    setProgressMessage("Initializing...");
+    setProgressMessage("🚀 Igniting the engines...");
     setProgressPercent(0);
     setProgressVisible(true);
     setProgressFading(false);
@@ -650,13 +713,13 @@ const App: React.FC = () => {
 
     let defaultBranchForThisRequest: string | null = null;
     try {
-      setProgressMessage("Fetching repository details...");
+      setProgressMessage("🔍 Scanning the repo...");
       defaultBranchForThisRequest = await githubService.getDefaultBranch(
         owner,
         repo
       );
       currentDefaultBranchForRequestRef.current = defaultBranchForThisRequest;
-      setProgressMessage("Repository details fetched. Connecting to server...");
+      setProgressMessage("⚡ Repo locked. Firing up the server...");
     } catch (branchError: any) {
       console.error("Failed to fetch default branch:", branchError);
       if (progressTickerRef.current) clearInterval(progressTickerRef.current);
@@ -673,9 +736,9 @@ const App: React.FC = () => {
     }
 
     const initiateRequest = async () => {
-      setProgressMessage("Connecting to server for processing...");
+      setProgressMessage(pick(PROCESSING_MESSAGES));
       // Ticker is already running from init — no need to restart it here
-      
+
       const apiHost = "api.gitscape.ai";
       let apiScheme: string;
       if (apiHost === "api.gitscape.ai") {
@@ -712,14 +775,14 @@ const App: React.FC = () => {
               } else if (errorData.message) {
                 errorDetail = errorData.message;
               }
-            } catch (e) {}
+            } catch (e) { }
           }
           throw new Error(errorDetail);
         }
 
         const data = await response.json();
-        
-        setProgressMessage("Digest generated. Finalizing...");
+
+        setProgressMessage("✨ Almost there — polishing the digest...");
         setProgressPercent(90);
 
         const markdownDigest = data.digest;
@@ -765,9 +828,9 @@ const App: React.FC = () => {
     };
 
     initiateRequest();
-  // Only truly stable or necessary deps. Volatile state (isLoading, error,
-  // digest, progressPercent) is intentionally omitted — they caused the
-  // callback to be recreated on every render, triggering render loops.
+    // Only truly stable or necessary deps. Volatile state (isLoading, error,
+    // digest, progressPercent) is intentionally omitted — they caused the
+    // callback to be recreated on every render, triggering render loops.
   }, [
     repoUrl,
     githubToken,
