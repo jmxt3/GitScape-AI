@@ -217,11 +217,16 @@ export const SkillExport: React.FC<SkillExportProps> = ({
               disabled={llmLoading}
               className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg bg-slate-700/50 hover:bg-slate-700 border border-slate-600 text-slate-400 hover:text-slate-200 disabled:opacity-50 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed"
             >
+              <span className="flex items-center gap-1.5">
               {llmLoading ? (
                 <><svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Generating…</>
               ) : (
                 <>✨ AI Description</>
               )}
+              {!llmLoading && (
+                <span className="ml-1 text-[9px] font-semibold tracking-wider uppercase bg-violet-500/20 text-violet-300 border border-violet-500/30 px-1.5 py-0.5 rounded">WebGPU</span>
+              )}
+              </span>
             </button>
             {/* Tooltip */}
             <div className="absolute bottom-full right-0 mb-2 w-60 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50">
@@ -234,6 +239,12 @@ export const SkillExport: React.FC<SkillExportProps> = ({
           </div>
         )}
       </div>
+
+      {/* Zip content hint */}
+      <p className="text-[11px] text-slate-500 flex items-center gap-1.5">
+        <svg className="w-3 h-3 shrink-0 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        The <span className="text-slate-400 font-medium">.zip</span> includes both the <span className="text-slate-400 font-medium">SKILL.md</span> and the full <span className="text-slate-400 font-medium">Code Digest</span> — everything your agents need in one file.
+      </p>
 
       {downloadError && (
         <p className="text-xs text-red-400 bg-red-900/20 border border-red-700/40 px-3 py-2 rounded-lg">{downloadError}</p>
