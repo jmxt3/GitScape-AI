@@ -13,9 +13,13 @@ load_dotenv()
 origins = [
     "https://gitscape.ai",
     "https://www.gitscape.ai",
-    "http://localhost:5173",  # Local development (Vite)
+    "http://localhost:5173",  # Local development (Vite default)
+    "http://localhost:5174",  # Local development (Vite fallback port)
+    "http://localhost:5175",  # Local development (Vite fallback port)
     "http://localhost:8000",  # Local development
     "http://127.0.0.1:5173", # Local development (127.0.0.1 alias)
+    "http://127.0.0.1:5174", # Local development (127.0.0.1 alias, fallback)
+    "http://127.0.0.1:5175", # Local development (127.0.0.1 alias, fallback)
 ]
 
 class Settings(BaseSettings):

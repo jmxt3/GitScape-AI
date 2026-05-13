@@ -1107,10 +1107,86 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        <div className="m-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto px-4">
+        {/* ── PORTRAIT MOBILE: compact 3-col pill strip ───────────────────────── */}
+        <div className="landscape:hidden mt-8 mb-2 grid grid-cols-3 gap-2 max-w-lg mx-auto px-3">
+
+          {/* Digest pill */}
+          <div className="flex flex-col items-center gap-2 bg-slate-800/70 border border-violet-500/20 rounded-2xl p-3 text-center">
+            <StageCompleteIcon
+              complete={stageComplete.digest}
+              frontBg="bg-violet-500/20"
+              frontColor="text-violet-400"
+              checkBg="bg-violet-500/25"
+              checkColor="text-violet-400"
+              frontIcon={
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round"
+                    d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                </svg>
+              }
+            />
+            <div>
+              <p className="text-[11px] font-bold text-violet-400 leading-tight">Code Digest</p>
+              <p className="text-[10px] text-slate-400 leading-tight mt-0.5">Repo → clean text</p>
+            </div>
+          </div>
+
+          {/* Visualization pill */}
+          <div className="flex flex-col items-center gap-2 bg-slate-800/70 border border-green-500/20 rounded-2xl p-3 text-center">
+            <StageCompleteIcon
+              complete={stageComplete.visualization}
+              frontBg="bg-green-500/20"
+              frontColor="text-green-400"
+              checkBg="bg-green-500/25"
+              checkColor="text-green-400"
+              frontIcon={
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round"
+                    d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+                </svg>
+              }
+            />
+            <div>
+              <p className="text-[11px] font-bold text-green-400 leading-tight">Code View</p>
+              <p className="text-[10px] text-slate-400 leading-tight mt-0.5">Interactive diagrams</p>
+            </div>
+          </div>
+
+          {/* Skill pill */}
+          <div className="flex flex-col items-center gap-2 bg-slate-800/70 border border-amber-500/20 rounded-2xl p-3 text-center">
+            <StageCompleteIcon
+              complete={stageComplete.skill}
+              frontBg="bg-amber-500/20"
+              frontColor="text-amber-400"
+              checkBg="bg-amber-500/25"
+              checkColor="text-amber-400"
+              frontIcon={
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round"
+                    d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />
+                </svg>
+              }
+            />
+            <div>
+              <p className="text-[11px] font-bold text-amber-400 leading-tight">Agent Skill</p>
+              <p className="text-[10px] text-slate-400 leading-tight mt-0.5">Ready-to-use SKILL.md</p>
+            </div>
+          </div>
+
+        </div>
+
+        {/* ── LANDSCAPE + TABLET + DESKTOP: full 3-col cards ─────────────────────── */}
+        <div className="hidden landscape:grid mt-8 mb-2 grid-cols-3 gap-4 max-w-4xl mx-auto px-4 sm:grid sm:mt-10 sm:gap-6 sm:mb-4">
+
           {/* Code Digest card */}
-          <div className="bg-slate-800/60 backdrop-blur-md p-6 rounded-xl shadow-xl border border-slate-700/80 hover:border-slate-600 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl">
-            <div className="flex items-center mb-4">
+          <div className="relative bg-slate-800/60 backdrop-blur-md p-4 sm:p-6 rounded-xl shadow-xl border border-slate-700/60
+            transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-2xl hover:border-violet-500/40
+            before:absolute before:inset-x-0 before:top-0 before:h-px before:rounded-t-xl
+            before:bg-gradient-to-r before:from-transparent before:via-violet-500/50 before:to-transparent">
+            <div className="flex items-center gap-2 mb-3">
               <StageCompleteIcon
                 complete={stageComplete.digest}
                 frontBg="bg-violet-500/20"
@@ -1119,23 +1195,25 @@ const App: React.FC = () => {
                 checkColor="text-violet-400"
                 frontIcon={
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                     <path strokeLinecap="round" strokeLinejoin="round"
                       d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
                   </svg>
                 }
               />
-              <h3 className="text-xl font-semibold text-violet-400">Code Digest</h3>
+              <h3 className="text-base sm:text-lg font-semibold text-violet-400 leading-tight">Code Digest</h3>
             </div>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Your AI-Ready code digest that converts any Git repository into
-              clean text, making it easy to use with your preferred AI models.
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+              Converts any repo into clean, AI-ready text your models can consume instantly.
             </p>
           </div>
 
           {/* Code Visualization card */}
-          <div className="bg-slate-800/60 backdrop-blur-md p-6 rounded-xl shadow-xl border border-slate-700/80 hover:border-slate-600 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl">
-            <div className="flex items-center mb-4">
+          <div className="relative bg-slate-800/60 backdrop-blur-md p-4 sm:p-6 rounded-xl shadow-xl border border-slate-700/60
+            transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-2xl hover:border-green-500/40
+            before:absolute before:inset-x-0 before:top-0 before:h-px before:rounded-t-xl
+            before:bg-gradient-to-r before:from-transparent before:via-green-500/50 before:to-transparent">
+            <div className="flex items-center gap-2 mb-3">
               <StageCompleteIcon
                 complete={stageComplete.visualization}
                 frontBg="bg-green-500/20"
@@ -1144,23 +1222,25 @@ const App: React.FC = () => {
                 checkColor="text-green-400"
                 frontIcon={
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                     <path strokeLinecap="round" strokeLinejoin="round"
                       d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
                   </svg>
                 }
               />
-              <h3 className="text-xl font-semibold text-green-400">Code Visualization</h3>
+              <h3 className="text-base sm:text-lg font-semibold text-green-400 leading-tight">Code Visualization</h3>
             </div>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Explore interactive, zoomable diagrams of your GitHub repository
-              structures.
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+              Explore interactive, zoomable diagrams of your repository structure.
             </p>
           </div>
 
           {/* Agent Skill card */}
-          <div className="bg-slate-800/60 backdrop-blur-md p-6 rounded-xl shadow-xl border border-slate-700/80 hover:border-amber-500/50 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl">
-            <div className="flex items-center mb-4">
+          <div className="relative bg-slate-800/60 backdrop-blur-md p-4 sm:p-6 rounded-xl shadow-xl border border-slate-700/60
+            transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-2xl hover:border-amber-500/40
+            before:absolute before:inset-x-0 before:top-0 before:h-px before:rounded-t-xl
+            before:bg-gradient-to-r before:from-transparent before:via-amber-500/50 before:to-transparent">
+            <div className="flex items-center gap-2 mb-3">
               <StageCompleteIcon
                 complete={stageComplete.skill}
                 frontBg="bg-amber-500/20"
@@ -1169,17 +1249,16 @@ const App: React.FC = () => {
                 checkColor="text-amber-400"
                 frontIcon={
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                     <path strokeLinecap="round" strokeLinejoin="round"
                       d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />
                   </svg>
                 }
               />
-              <h3 className="text-xl font-semibold text-amber-400">Agent Skill</h3>
+              <h3 className="text-base sm:text-lg font-semibold text-amber-400 leading-tight">Agent Skill</h3>
             </div>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Instantly generate a ready-to-use agent skill from any repo — a
-              structured SKILL.md your AI agents can load and act on.
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+              Generate a ready-to-use SKILL.md your AI agents can load and act on.
             </p>
           </div>
 
