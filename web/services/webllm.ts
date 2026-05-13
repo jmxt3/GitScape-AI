@@ -9,8 +9,10 @@
  * Author: João Machete
  */
 
-// Qwen2-0.5B — ~350 MB model, cached in browser Cache API after first download
-const MODEL_ID = "Qwen2-0.5B-Instruct-q4f16_1-MLC";
+// Llama-3.2-1B-Instruct — ~700 MB, cached in browser Cache API after first download.
+// Significantly better instruction following than Qwen 0.5B, eliminating most
+// prompt-leak artifacts ("Output: []", code fences, preamble lines).
+const MODEL_ID = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
 
 // We use `any` here to avoid pulling in the webllm types at compile time.
 // The dynamic import resolves the real types at runtime.
@@ -101,71 +103,98 @@ export async function getEngine(
 }
 
 // ─── Section-specific prompts ─────────────────────────────────────────────────
-// Kept deliberately short and direct — Qwen 0.5B follows simple, imperative
-// instructions far better than long, elaborated prompts.
+// Llama-3.2-1B follows system prompts well, so we use a system message to lock
+// output format and a focused user message with the content to rewrite.
 
-function buildPrompt(
+const SYSTEM_PROMPT =
+  "You are a technical writer specialising in AI agent skill documentation. " +
+  "Follow the user's formatting rules exactly. Output ONLY the requested content — " +
+  "no preamble, no code fences, no explanations, no labels like 'Output:'.";
+
+function buildMessages(
   section: SkillSection,
   repoName: string,
   langStr: string,
-  currentContent: string   // existing section text to improve
-): { prompt: string; max_tokens: number } {
+  currentContent: string
+): { messages: { role: string; content: string }[]; max_tokens: number } {
+  const sys = { role: "system", content: SYSTEM_PROMPT };
+
   switch (section) {
     case "description":
       return {
-        max_tokens: 160,
-        prompt: `Rewrite this AI skill description to be clearer and more specific.
-Repository: ${repoName} (${langStr})
-Current: ${currentContent.substring(0, 400)}
+        max_tokens: 120,
+        messages: [sys, { role: "user", content:
+`Improve this AI skill description for the ${repoName} repository (${langStr}).
 
-Rules: 2-3 sentences. Keep factual details. Use "Use when working with" phrasing. No quotes, no markdown.
-Output ONLY the rewritten description:`,
+Current description:
+${currentContent.substring(0, 400)}
+
+Write 2-3 sentences. Start with "Use when working with". Keep factual details. No quotes.` }],
       };
 
     case "overview":
       return {
-        max_tokens: 200,
-        prompt: `Rewrite this Overview section for the ${repoName} skill.
+        max_tokens: 180,
+        messages: [sys, { role: "user", content:
+`Rewrite the Overview section for the ${repoName} skill.
+
 Current text:
 ${currentContent.substring(0, 500)}
 
-Rules: 3 sentences of plain prose. First: what the repo does. Second: key components. Third: who uses it. No bullets.
-Output ONLY the rewritten paragraph:`,
+Write 3 plain-prose sentences. First: what the repo does. Second: key components. Third: who uses it. No bullet points.` }],
       };
 
     case "capabilities":
       return {
-        max_tokens: 220,
-        prompt: `Rewrite these capabilities for the ${repoName} agent skill.
+        max_tokens: 240,
+        messages: [sys, { role: "user", content:
+`Rewrite the Capabilities list for the ${repoName} skill.
+
 Current list:
 ${currentContent.substring(0, 500)}
 
-Rules: Keep 5-6 bullet points starting with "- ". Make each specific to ${repoName}. Improve wording only.
-Output ONLY the bullet list:`,
+Write exactly 5-6 bullet points. Each starts with "- ". Be specific to ${repoName}. Improve wording only.` }],
       };
 
     case "usage":
       return {
         max_tokens: 180,
-        prompt: `Rewrite these usage instructions for the ${repoName} skill.
+        messages: [sys, { role: "user", content:
+`Rewrite the Usage Instructions for the ${repoName} skill.
+
 Current:
 ${currentContent.substring(0, 400)}
 
-Rules: Numbered list 1. 2. 3. Each item under 20 words. Tell the agent exactly what to do. No headers.
-Output ONLY the numbered list:`,
+Write a numbered list: 1. 2. 3. 4. Each item under 20 words. Tell the agent exactly what to do.` }],
       };
 
     case "boundaries":
       return {
         max_tokens: 160,
-        prompt: `Rewrite these boundary rules for the ${repoName} skill.
+        messages: [sys, { role: "user", content:
+`Rewrite the Boundaries section for the ${repoName} skill.
+
 Current:
 ${currentContent.substring(0, 400)}
 
-Rules: Numbered list 1. 2. 3. Each says what the agent must NOT do or must acknowledge. Under 20 words each.
-Output ONLY the numbered list:`,
+Write a bullet list. Each item starts with "- ". State what the agent must NOT do or must acknowledge. Under 20 words each.` }],
       };
   }
+}
+
+// ─── Output sanitizer ────────────────────────────────────────────────────────
+// Strip common LLM artifacts that leak into output even with good prompts.
+export function cleanOutput(raw: string): string {
+  return raw
+    .replace(/```[\w]*\n?/g, "")          // remove opening code fences
+    .replace(/```\s*$/gm, "")              // remove closing code fences
+    .replace(/^Output:\s*\[?\]?\s*$/gim, "")  // remove "Output: []" lines
+    .replace(/^Numbered list:\s*$/gim, "")    // remove "Numbered list:" preamble
+    .replace(/^Bullet list:\s*$/gim, "")      // remove "Bullet list:" preamble
+    .replace(/^Here (are|is) .*?:\s*$/gim, "") // remove "Here are the X:" preambles
+    .replace(/^Rewritten .*?:\s*$/gim, "")     // remove "Rewritten description:" labels
+    .replace(/\n{3,}/g, "\n\n")           // collapse excess blank lines
+    .trim();
 }
 
 // ─── Core streaming helper ────────────────────────────────────────────────────
@@ -173,14 +202,14 @@ Output ONLY the numbered list:`,
 async function streamCompletion(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   engine: any,
-  prompt: string,
+  messages: { role: string; content: string }[],
   max_tokens: number,
   onChunk?: (partial: string) => void
 ): Promise<string> {
   const stream = await engine.chat.completions.create({
-    messages: [{ role: "user", content: prompt }],
+    messages,
     max_tokens,
-    temperature: 0.35,
+    temperature: 0.3,
     top_p: 0.9,
     stream: true,
   });
@@ -215,9 +244,9 @@ export async function generateSkillSection(
 ): Promise<string> {
   const engine = await getEngine(onProgress);
   const langStr = languages.join(", ") || "multiple languages";
-  const { prompt, max_tokens } = buildPrompt(section, repoName, langStr, digestSnippet);
-
-  return streamCompletion(engine, prompt, max_tokens, onChunk);
+  const { messages, max_tokens } = buildMessages(section, repoName, langStr, digestSnippet);
+  const raw = await streamCompletion(engine, messages, max_tokens, onChunk);
+  return cleanOutput(raw);
 }
 
 /**
@@ -240,5 +269,33 @@ export async function disposeEngine(): Promise<void> {
     await engineInstance.unload?.();
     engineInstance = null;
     engineLoadPromise = null;
+  }
+}
+
+/**
+ * Silently warm-up the engine in the background on page load.
+ * - If the model is already cached by the browser, this resolves in seconds.
+ * - If not cached, it downloads ~700 MB in the background via the Cache API.
+ * - Never throws and never updates any UI — fully fire-and-forget.
+ * - When the user later clicks "Rewrite Skill", getEngine() returns the
+ *   already-loaded instance instantly instead of making them wait.
+ *
+ * Call this once on app mount, guarded by isWebGPUSupported().
+ */
+export function preloadEngine(): void {
+  if (!isWebGPUSupported()) return;
+  if (engineInstance || engineLoadPromise) return; // already loaded or loading
+
+  // Use a short idle delay so the main thread is free for the initial render
+  const kick = () => {
+    getEngine().catch(() => {
+      // Silent failure — the user will get a proper error when they click the button
+    });
+  };
+
+  if (typeof requestIdleCallback !== "undefined") {
+    requestIdleCallback(kick, { timeout: 3000 });
+  } else {
+    setTimeout(kick, 1500);
   }
 }

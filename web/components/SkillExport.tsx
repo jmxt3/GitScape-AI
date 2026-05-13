@@ -407,6 +407,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
           <MarkdownPreview
             content={displaySkillMd}
             activeSection={streamingSection}
+            completedSections={completedSteps}
           />
         </div>
       </div>
@@ -447,8 +448,9 @@ const SECTION_HEADER_TEXT: Record<string, string> = {
 
 const MarkdownPreview: React.FC<{
   content: string;
-  activeSection?: string | null;   // which section is currently streaming
-}> = ({ content, activeSection }) => {
+  activeSection?: string | null;
+  completedSections?: Set<string>;
+}> = ({ content, activeSection, completedSections }) => {
   if (!content) {
     return (
       <pre className="p-4 text-xs leading-relaxed font-mono text-slate-300 whitespace-pre-wrap break-words select-all">
@@ -461,12 +463,20 @@ const MarkdownPreview: React.FC<{
   // we're streaming the YAML description field.
   const activeHeader = activeSection ? SECTION_HEADER_TEXT[activeSection] ?? null : null;
   const isDescStreaming = activeSection === "description";
+  const isDescDone = completedSections?.has("description") && !isDescStreaming;
+
+  // Build a reverse-lookup: header text → SkillSection key
+  const headerToSection: Record<string, string> = Object.fromEntries(
+    Object.entries(SECTION_HEADER_TEXT).map(([k, v]) => [v, k])
+  );
 
   const lines = content.split('\n');
   const rendered: React.ReactNode[] = [];
 
-  // Track whether we're inside the active section's block so we can highlight it.
-  let inActiveBlock = isDescStreaming; // description is frontmatter, special-cased below
+  // inActiveBlock: true while iterating lines inside the currently streaming section
+  // inDoneBlock: true while iterating lines inside a completed section
+  let inActiveBlock = isDescStreaming;
+  let inDoneBlock = false;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -479,22 +489,24 @@ const MarkdownPreview: React.FC<{
     const isActiveSectionHeader = activeHeader && line.startsWith(activeHeader);
     const isAnyH2 = /^## /.test(line);
 
-    // When we hit any ## header, stop highlighting the previous active block.
-    // Start highlighting when we hit the active section header.
     if (isAnyH2) {
+      const sectionKey = headerToSection[line.trim()];
+      const isDoneSection = sectionKey ? (completedSections?.has(sectionKey) ?? false) : false;
       inActiveBlock = isActiveSectionHeader ? true : false;
+      inDoneBlock = !inActiveBlock && isDoneSection;
     }
 
     // ── Detect cursor sentinel injected during streaming ─────────────────────
     const hasCursor = line.includes('█');
     const displayLine = hasCursor ? line.replace(/█/g, '') : line;
 
-    // ── Render ───────────────────────────────────────────────────────────────
-    const isDescLine = isDescStreaming && line.includes('description:');
+    const isDescLine = (isDescStreaming || isDescDone) && line.includes('description:');
 
     const baseStyle: React.CSSProperties = inActiveBlock
       ? { display: 'block', background: 'rgba(251,191,36,0.07)' }
-      : { display: 'block' };
+      : inDoneBlock
+        ? { display: 'block', background: 'rgba(52,211,153,0.05)' }
+        : { display: 'block' };
 
     rendered.push(
       <span key={i} style={baseStyle}>
@@ -515,17 +527,21 @@ const MarkdownPreview: React.FC<{
             </span>
           </span>
         ) : isActiveSectionHeader ? (
-          // Active section header — amber glow + left border accent
           <span style={{
-            display: 'block',
-            color: '#fbbf24',
-            fontWeight: 700,
-            background: 'rgba(251,191,36,0.12)',
-            outline: '1px solid rgba(251,191,36,0.45)',
+            display: 'block', color: '#fbbf24', fontWeight: 700,
+            background: 'rgba(251,191,36,0.12)', outline: '1px solid rgba(251,191,36,0.45)',
             borderLeft: '3px solid rgba(251,191,36,0.7)',
-            borderRadius: '3px',
-            paddingLeft: '6px',
-            marginLeft: '-6px',
+            borderRadius: '3px', paddingLeft: '6px', marginLeft: '-6px',
+          }}>
+            {displayLine}
+          </span>
+        ) : inDoneBlock && isAnyH2 ? (
+          // Completed section header — subtle green glow
+          <span style={{
+            display: 'block', color: '#34d399', fontWeight: 700,
+            background: 'rgba(52,211,153,0.08)', outline: '1px solid rgba(52,211,153,0.30)',
+            borderLeft: '3px solid rgba(52,211,153,0.6)',
+            borderRadius: '3px', paddingLeft: '6px', marginLeft: '-6px',
           }}>
             {displayLine}
           </span>
