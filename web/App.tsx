@@ -453,12 +453,73 @@ const getStepGlow = (pct: number): string => {
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─── StageCompleteIcon ────────────────────────────────────────────────────────
+// A flip-card circle: shows the original icon on the front, a green ✓ on the back.
+// Rotates 180° smoothly when `complete` becomes true; resets when false.
+interface StageCompleteIconProps {
+  complete: boolean;
+  frontIcon: React.ReactNode;
+  frontBg: string;    // e.g. "bg-violet-500/20"
+  frontColor: string; // e.g. "text-violet-400"
+  checkBg: string;    // e.g. "bg-violet-500/25"
+  checkColor: string; // e.g. "text-violet-400"
+}
+const StageCompleteIcon: React.FC<StageCompleteIconProps> = ({ complete, frontIcon, frontBg, frontColor, checkBg, checkColor }) => (
+  <div
+    style={{
+      perspective: "600px",
+      width: "2.5rem",
+      height: "2.5rem",
+      marginRight: "0.75rem",
+      flexShrink: 0,
+    }}
+  >
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        transformStyle: "preserve-3d",
+        transition: "transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        transform: complete ? "rotateY(180deg)" : "rotateY(0deg)",
+      }}
+    >
+      {/* Front: original icon */}
+      <div
+        style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
+        className={`absolute inset-0 flex items-center justify-center p-2 ${frontBg} rounded-full`}
+      >
+        <div className={frontColor}>{frontIcon}</div>
+      </div>
+      {/* Back: category-coloured checkmark */}
+      <div
+        style={{
+          backfaceVisibility: "hidden",
+          WebkitBackfaceVisibility: "hidden",
+          transform: "rotateY(180deg)",
+        }}
+        className={`absolute inset-0 flex items-center justify-center p-2 ${checkBg} rounded-full`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"
+          className={`w-6 h-6 ${checkColor}`}>
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      </div>
+    </div>
+  </div>
+);
+// ─────────────────────────────────────────────────────────────────────────────
+
 const App: React.FC = () => {
   const [repoUrl, setRepoUrl] = useState<string>(() =>
     getFromLocalStorage(REPO_URL_LOCAL_STORAGE_KEY, "")
   );
   const [digest, setDigest] = useState<string>("");
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
+
+  // Per-stage completion flags (drives the flip animation on each card icon)
+  const [stageComplete, setStageComplete] = useState({ digest: false, visualization: false, skill: false });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -994,7 +1055,20 @@ const App: React.FC = () => {
     setRepoFileStructure("");
     setDiagramData(null);
     setRetryAfterSeconds(null);
+    // Reset all stage completion flags
+    setStageComplete({ digest: false, visualization: false, skill: false });
   }, [repoUrl]);
+
+  // Drive stage completion flags from data availability
+  useEffect(() => {
+    setStageComplete(prev => ({ ...prev, digest: !!digest }));
+  }, [digest]);
+  useEffect(() => {
+    setStageComplete(prev => ({ ...prev, visualization: !!diagramData }));
+  }, [diagramData]);
+  useEffect(() => {
+    setStageComplete(prev => ({ ...prev, skill: !!skillMd }));
+  }, [skillMd]);
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-200 flex flex-col">
@@ -1016,27 +1090,24 @@ const App: React.FC = () => {
         </div>
 
         <div className="m-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto px-4">
+          {/* Code Digest card */}
           <div className="bg-slate-800/60 backdrop-blur-md p-6 rounded-xl shadow-xl border border-slate-700/80 hover:border-slate-600 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl">
             <div className="flex items-center mb-4">
-              <div className="p-2 bg-violet-500/20 rounded-full mr-3 shrink-0">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-6 h-6 text-violet-400"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-violet-400">
-                Code Digest
-              </h3>
+              <StageCompleteIcon
+                complete={stageComplete.digest}
+                frontBg="bg-violet-500/20"
+                frontColor="text-violet-400"
+                checkBg="bg-violet-500/25"
+                checkColor="text-violet-400"
+                frontIcon={
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round"
+                      d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                  </svg>
+                }
+              />
+              <h3 className="text-xl font-semibold text-violet-400">Code Digest</h3>
             </div>
             <p className="text-sm text-slate-300 leading-relaxed">
               Your AI-Ready code digest that converts any Git repository into
@@ -1044,27 +1115,24 @@ const App: React.FC = () => {
             </p>
           </div>
 
+          {/* Code Visualization card */}
           <div className="bg-slate-800/60 backdrop-blur-md p-6 rounded-xl shadow-xl border border-slate-700/80 hover:border-slate-600 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl">
             <div className="flex items-center mb-4">
-              <div className="p-2 bg-green-500/20 rounded-full mr-3 shrink-0">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-6 h-6 text-green-400"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-green-400">
-                Code Visualization
-              </h3>
+              <StageCompleteIcon
+                complete={stageComplete.visualization}
+                frontBg="bg-green-500/20"
+                frontColor="text-green-400"
+                checkBg="bg-green-500/25"
+                checkColor="text-green-400"
+                frontIcon={
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round"
+                      d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+                  </svg>
+                }
+              />
+              <h3 className="text-xl font-semibold text-green-400">Code Visualization</h3>
             </div>
             <p className="text-sm text-slate-300 leading-relaxed">
               Explore interactive, zoomable diagrams of your GitHub repository
@@ -1072,27 +1140,24 @@ const App: React.FC = () => {
             </p>
           </div>
 
+          {/* Agent Skill card */}
           <div className="bg-slate-800/60 backdrop-blur-md p-6 rounded-xl shadow-xl border border-slate-700/80 hover:border-amber-500/50 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl">
             <div className="flex items-center mb-4">
-              <div className="p-2 bg-amber-500/20 rounded-full mr-3 shrink-0">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-6 h-6 text-amber-400"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-amber-400">
-                Agent Skill
-              </h3>
+              <StageCompleteIcon
+                complete={stageComplete.skill}
+                frontBg="bg-amber-500/20"
+                frontColor="text-amber-400"
+                checkBg="bg-amber-500/25"
+                checkColor="text-amber-400"
+                frontIcon={
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round"
+                      d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />
+                  </svg>
+                }
+              />
+              <h3 className="text-xl font-semibold text-amber-400">Agent Skill</h3>
             </div>
             <p className="text-sm text-slate-300 leading-relaxed">
               Instantly generate a ready-to-use agent skill from any repo — a
