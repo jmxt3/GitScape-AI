@@ -81,6 +81,8 @@ def get_digest(
         repo = metadata["repo"]
         languages = metadata["primary_languages"]
         files_analyzed = metadata["files_analyzed"]
+        readme = metadata.get("readme", "")
+        file_structure = metadata.get("file_structure", "")
         generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
         skill_md = generate_skill_md(
@@ -106,6 +108,8 @@ def get_digest(
             "manifest_json": manifest,
             "primary_languages": languages,
             "files_analyzed": files_analyzed,
+            "readme": readme,
+            "file_structure": file_structure,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

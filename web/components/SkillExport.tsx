@@ -12,6 +12,8 @@ interface SkillExportProps {
   repoNameForFilename: string | null;
   githubToken: string | null;
   digest: string;
+  repoReadme: string;
+  repoFileStructure: string;
 }
 
 declare const __API_HOST__: string;
@@ -26,6 +28,8 @@ export const SkillExport: React.FC<SkillExportProps> = ({
   repoNameForFilename,
   githubToken: _githubToken,
   digest,
+  repoReadme,
+  repoFileStructure,
 }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
@@ -123,6 +127,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
         description: "",       // handled above
         overview: "## Overview",
         capabilities: "## Capabilities",
+        structure: "## Architecture & Structure",
         usage: "## Usage Instructions",
         boundaries: "## Boundaries",
       };
@@ -153,6 +158,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
       description: "",
       overview: "## Overview",
       capabilities: "## Capabilities",
+      structure: "## Architecture & Structure",
       usage: "## Usage Instructions",
       boundaries: "## Boundaries",
     };
@@ -218,6 +224,8 @@ export const SkillExport: React.FC<SkillExportProps> = ({
           repoName,
           languages,
           currentSectionText,
+          repoReadme,
+          repoFileStructure,
           // Only show model-load progress on the first section
           i === 0 ? (report) => setLlmProgress(report) : undefined,
           (partial) => setStreamingPartial(partial)

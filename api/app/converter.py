@@ -315,6 +315,27 @@ def build_directory_tree(root: Path, prefix: str = "", is_last: bool = True) -> 
     return tree_str
 
 
+README_MAX_CHARS = 8_000  # cap to keep HTTP response size bounded
+README_CANDIDATES = ["README.md", "readme.md", "README.rst", "README.txt", "readme.txt"]
+
+
+def extract_readme(root: Path) -> str:
+    """
+    Return the content of the repository's root-level README file, capped at
+    README_MAX_CHARS characters.  Returns an empty string when no README is found.
+    """
+    for name in README_CANDIDATES:
+        candidate = root / name
+        if candidate.is_file():
+            try:
+                content = candidate.read_text(encoding="utf-8", errors="replace")
+                return content[:README_MAX_CHARS]
+            except Exception as e:
+                logger.warning(f"Could not read {candidate}: {e}")
+                return ""
+    return ""
+
+
 def get_all_text_files(root: Path) -> list:
     files = []
     for entry in root.iterdir():
@@ -373,7 +394,10 @@ def generate_markdown_digest(
     digest.append(f"Files analyzed: {len(text_files)}\n")
     digest.append("Directory structure:")
     digest.append(f"└── {repo_name}/")
-    digest.append(build_directory_tree(root, prefix="    "))
+    # Capture the tree string for the metadata (used by WebLLM context)
+    file_structure = build_directory_tree(root, prefix="    ")
+    digest.append(file_structure)
+    readme = extract_readme(root)
     for file_path in text_files:
         rel_path = file_path.relative_to(root)
         digest.append("\n" + "="*48)
@@ -404,6 +428,8 @@ def generate_markdown_digest(
             "primary_languages": languages,
             "owner": owner,
             "repo": repo_short,
+            "readme": readme,
+            "file_structure": file_structure,
         }
         return digest_str, metadata
     return digest_str

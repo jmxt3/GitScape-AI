@@ -36,6 +36,7 @@ export type SkillSection =
   | "description"
   | "overview"
   | "capabilities"
+  | "structure"
   | "usage"
   | "boundaries";
 
@@ -43,6 +44,7 @@ export const SKILL_SECTIONS: SkillSection[] = [
   "description",
   "overview",
   "capabilities",
+  "structure",
   "usage",
   "boundaries",
 ];
@@ -51,6 +53,7 @@ export const SKILL_SECTION_LABELS: Record<SkillSection, string> = {
   description: "Description",
   overview:    "Overview",
   capabilities: "Capabilities",
+  structure:   "Architecture & Structure",
   usage:       "Usage Instructions",
   boundaries:  "Boundaries",
 };
@@ -115,9 +118,17 @@ function buildMessages(
   section: SkillSection,
   repoName: string,
   langStr: string,
-  currentContent: string
+  currentContent: string,
+  readme: string,
+  fileStructure: string
 ): { messages: { role: string; content: string }[]; max_tokens: number } {
   const sys = { role: "system", content: SYSTEM_PROMPT };
+
+  // Context block injected into every prompt — README capped at 2K chars,
+  // file structure at 1.5K chars so we stay inside the 4K context window.
+  const ctxBlock =
+    (readme ? `### README\n${readme.substring(0, 2000)}\n\n` : "") +
+    (fileStructure ? `### File Structure\n${fileStructure.substring(0, 1500)}\n\n` : "");
 
   switch (section) {
     case "description":
@@ -126,7 +137,7 @@ function buildMessages(
         messages: [sys, { role: "user", content:
 `Improve this AI skill description for the ${repoName} repository (${langStr}).
 
-Current description:
+${ctxBlock}Current description:
 ${currentContent.substring(0, 400)}
 
 Write 2-3 sentences. Start with "Use when working with". Keep factual details. No quotes.` }],
@@ -134,14 +145,16 @@ Write 2-3 sentences. Start with "Use when working with". Keep factual details. N
 
     case "overview":
       return {
-        max_tokens: 120,
+        max_tokens: 200,
         messages: [sys, { role: "user", content:
-`Rewrite the Overview section for the ${repoName} skill.
+`Write a rich Overview section for the ${repoName} skill (${langStr}).
 
-Current text:
-${currentContent.substring(0, 500)}
-
-Write 3 plain-prose sentences. First: what the repo does. Second: key components. Third: who uses it. No bullet points.` }],
+${ctxBlock}Write 4-5 plain-prose sentences covering:
+1. What this repository does and its main purpose (use the README).
+2. The high-level architecture and key components.
+3. The primary technology stack and design patterns used.
+4. Who the intended users or consumers of this project are.
+No bullet points. No headings. Be specific — reference actual names from the README and file structure.` }],
       };
 
     case "capabilities":
@@ -150,10 +163,24 @@ Write 3 plain-prose sentences. First: what the repo does. Second: key components
         messages: [sys, { role: "user", content:
 `Rewrite the Capabilities section for the ${repoName} skill.
 
-Current:
+${ctxBlock}Current:
 ${currentContent.substring(0, 500)}
 
 Write a numbered list: 1. 2. 3. 4. 5. Each item under 20 words. Each describes one specific thing this skill enables the agent to do.` }],
+      };
+
+    case "structure":
+      return {
+        max_tokens: 200,
+        messages: [sys, { role: "user", content:
+`Write an "Architecture & Structure" section for the ${repoName} skill.
+
+${ctxBlock}Write a numbered list describing the key top-level directories and files.
+For each entry: give the directory/file name followed by a colon and a one-line description of its purpose.
+Example format:
+1. src/: Main application source code containing components and business logic.
+2. tests/: Unit and integration test suites.
+Limit to the 5-7 most important paths. Be specific to this repo. No generic filler.` }],
       };
 
     case "usage":
@@ -162,7 +189,7 @@ Write a numbered list: 1. 2. 3. 4. 5. Each item under 20 words. Each describes o
         messages: [sys, { role: "user", content:
 `Rewrite the Usage Instructions for the ${repoName} skill.
 
-Current:
+${ctxBlock}Current:
 ${currentContent.substring(0, 400)}
 
 Write a numbered list: 1. 2. 3. 4. Each item under 20 words. Tell the agent exactly what to do.` }],
@@ -174,7 +201,7 @@ Write a numbered list: 1. 2. 3. 4. Each item under 20 words. Tell the agent exac
         messages: [sys, { role: "user", content:
 `Rewrite the Boundaries section for the ${repoName} skill.
 
-Current:
+${ctxBlock}Current:
 ${currentContent.substring(0, 400)}
 
 Write a numbered list: 1. 2. 3. Each item under 20 words. State what the agent must NOT do or must acknowledge.` }],
@@ -239,12 +266,14 @@ export async function generateSkillSection(
   repoName: string,
   languages: string[],
   digestSnippet: string,
+  readme: string,
+  fileStructure: string,
   onProgress?: (report: ProgressReport) => void,
   onChunk?: (partial: string) => void
 ): Promise<string> {
   const engine = await getEngine(onProgress);
   const langStr = languages.join(", ") || "multiple languages";
-  const { messages, max_tokens } = buildMessages(section, repoName, langStr, digestSnippet);
+  const { messages, max_tokens } = buildMessages(section, repoName, langStr, digestSnippet, readme, fileStructure);
   const raw = await streamCompletion(engine, messages, max_tokens, onChunk);
   return cleanOutput(raw);
 }

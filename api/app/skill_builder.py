@@ -155,6 +155,10 @@ The full source code digest is in `DIGEST.md` (attached in this skill package).
 | Generated | {generated_at} |
 | Generator | [GitScape.ai](https://gitscape.ai) |
 
+## Architecture & Structure
+
+The repository is organized as a standard {lang_str} project. Key directories and their roles are described below to help the agent navigate the codebase efficiently.
+
 ## Usage Instructions
 
 When this skill is activated:

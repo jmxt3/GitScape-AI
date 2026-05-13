@@ -85,6 +85,8 @@ export interface CachedRepoOutput {
   skill_md?: string;
   manifest_json?: SkillManifest;
   primary_languages?: string[];
+  readme?: string;
+  file_structure?: string;
 }
 
 export interface SkillManifest {

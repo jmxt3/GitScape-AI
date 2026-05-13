@@ -19,6 +19,8 @@ interface OutputTabsProps {
   manifestJson?: SkillManifest | null;
   repoUrl?: string;
   githubToken?: string | null;
+  repoReadme?: string;
+  repoFileStructure?: string;
 }
 
 const SectionHeader: React.FC<{
@@ -66,6 +68,8 @@ export const OutputTabs: React.FC<OutputTabsProps> = ({
   manifestJson,
   repoUrl,
   githubToken,
+  repoReadme,
+  repoFileStructure,
 }) => {
   return (
     <div className="mt-8 flex flex-col gap-8">
@@ -139,6 +143,8 @@ export const OutputTabs: React.FC<OutputTabsProps> = ({
             repoNameForFilename={repoNameForFilename}
             githubToken={githubToken ?? null}
             digest={digest}
+            repoReadme={repoReadme ?? ""}
+            repoFileStructure={repoFileStructure ?? ""}
           />
         ) : (
           <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-500">

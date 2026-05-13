@@ -78,9 +78,11 @@ const FuseParticles: React.FC<FuseParticlesProps> = ({ progressPercent, step }) 
   const particlesRef = useRef<Particle[]>([]);
   const animFrameRef = useRef<number>(0);
   const prevPercentRef = useRef<number>(progressPercent);
-  // Always reflects latest step without restarting the animation loop
+  // Always reflects latest values without restarting the animation loop
   const stepRef = useRef<1 | 2 | 3>(step);
+  const progressPercentRef = useRef<number>(progressPercent);
   useEffect(() => { stepRef.current = step; }, [step]);
+  useEffect(() => { progressPercentRef.current = progressPercent; }, [progressPercent]);
 
   const CANVAS_W = 120;
   const CANVAS_H = 80;
@@ -138,8 +140,9 @@ const FuseParticles: React.FC<FuseParticlesProps> = ({ progressPercent, step }) 
       const dt = Math.min((now - lastTime) / 16.67, 3);
       lastTime = now;
 
-      const isMoving = Math.abs(progressPercent - prevPercentRef.current) > 0.05;
-      prevPercentRef.current = progressPercent;
+      const currentPercent = progressPercentRef.current;
+      const isMoving = Math.abs(currentPercent - prevPercentRef.current) > 0.05;
+      prevPercentRef.current = currentPercent;
 
       spawn(isMoving);
 
@@ -231,8 +234,10 @@ const FuseParticles: React.FC<FuseParticlesProps> = ({ progressPercent, step }) 
 
     animFrameRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(animFrameRef.current);
+    // progressPercent is intentionally read via progressPercentRef so the
+    // loop starts once and runs continuously without restarting every tick.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [progressPercent]);
+  }, []);
 
   return (
     <div
@@ -511,6 +516,8 @@ const App: React.FC = () => {
   // Skill export state
   const [skillMd, setSkillMd] = useState<string>("");
   const [manifestJson, setManifestJson] = useState<SkillManifest | null>(null);
+  const [repoReadme, setRepoReadme] = useState<string>("");
+  const [repoFileStructure, setRepoFileStructure] = useState<string>("");
 
   const [showDiagramFullscreenModal, setShowDiagramFullscreenModal] =
     useState<boolean>(false);
@@ -553,6 +560,8 @@ const App: React.FC = () => {
           setFilesToRenderInDiagram(cachedData.filesToRenderInDiagram || []);
           if (cachedData.skill_md) setSkillMd(cachedData.skill_md);
           if (cachedData.manifest_json) setManifestJson(cachedData.manifest_json);
+          if (cachedData.readme) setRepoReadme(cachedData.readme);
+          if (cachedData.file_structure) setRepoFileStructure(cachedData.file_structure);
         } catch (e) {
           console.warn(`Failed to restore cached data for ${repoUrl}:`, e);
           deleteCachedRepo(repoUrl);
@@ -607,6 +616,8 @@ const App: React.FC = () => {
       newSkillMd?: string,
       newManifestJson?: SkillManifest | null,
       newPrimaryLanguages?: string[],
+      newReadme?: string,
+      newFileStructure?: string,
     ) => {
       // Show digest immediately — don't keep user waiting for the tree fetch.
       setDigest(markdownDigest);
@@ -659,6 +670,8 @@ const App: React.FC = () => {
             skill_md: newSkillMd,
             manifest_json: newManifestJson ?? undefined,
             primary_languages: newPrimaryLanguages,
+            readme: newReadme,
+            file_structure: newFileStructure,
           };
           setCachedRepo(repoUrlRef.current, repoDataToCache);
         }, 0);
@@ -675,6 +688,8 @@ const App: React.FC = () => {
           skill_md: newSkillMd,
           manifest_json: newManifestJson ?? undefined,
           primary_languages: newPrimaryLanguages,
+          readme: newReadme,
+          file_structure: newFileStructure,
         };
         setCachedRepo(repoUrlRef.current, repoDataToCache);
       }
@@ -708,7 +723,9 @@ const App: React.FC = () => {
     setProgressVisible(true);
     setProgressFading(false);
 
-    // Start the fuse ticker — also rotates step-aware jokes every 3s
+    // Start the fuse ticker at 50 ms for smooth, continuous movement.
+    // Step size is scaled down proportionally (700 / 50 = ×14) so the
+    // overall speed to reach 88 % is unchanged but without visible jumps.
     if (progressTickerRef.current) clearInterval(progressTickerRef.current);
     let msgTick = 0;
     progressTickerRef.current = setInterval(() => {
@@ -718,12 +735,13 @@ const App: React.FC = () => {
           return prev;
         }
         const remaining = 88 - prev;
-        const stepSize = Math.max(0.3, remaining * 0.04);
+        // Same asymptotic approach but in micro-steps every 50 ms
+        const stepSize = Math.max(0.02, remaining * 0.003);
         return Math.min(88, prev + stepSize);
       });
-      // Rotate joke every ~6 ticks (700ms × 6 ≈ 4.2s)
+      // Rotate joke every ~84 ticks (50 ms × 84 ≈ 4.2 s)
       msgTick++;
-      if (msgTick % 6 === 0) {
+      if (msgTick % 84 === 0) {
         setProgressPercent((pct) => {
           const s = getProgressStep(pct);
           const pool = s === 1 ? DIGEST_MESSAGES : s === 2 ? VISUALIZATION_MESSAGES : SKILL_MESSAGES;
@@ -731,7 +749,7 @@ const App: React.FC = () => {
           return pct;
         });
       }
-    }, 700);
+    }, 50);
 
     setProcessedRepoName(undefined);
     setRepoNameForFilename(null);
@@ -852,6 +870,8 @@ const App: React.FC = () => {
         // Store skill fields from enhanced /converter response
         if (data.skill_md) setSkillMd(data.skill_md);
         if (data.manifest_json) setManifestJson(data.manifest_json);
+        if (data.readme) setRepoReadme(data.readme);
+        if (data.file_structure) setRepoFileStructure(data.file_structure);
 
         const branchForProcessing = data.default_branch || currentDefaultBranchForRequestRef.current;
         const digestFilesCount = data.files_analyzed_count !== undefined ? Number(data.files_analyzed_count) : null;
@@ -870,6 +890,8 @@ const App: React.FC = () => {
           data.skill_md,
           data.manifest_json,
           data.primary_languages,
+          data.readme,
+          data.file_structure,
         );
 
       } catch (err: any) {
@@ -965,6 +987,8 @@ const App: React.FC = () => {
     setFilesToRenderInDiagram([]);
     setSkillMd("");
     setManifestJson(null);
+    setRepoReadme("");
+    setRepoFileStructure("");
     setDiagramData(null);
     setRetryAfterSeconds(null);
   }, [repoUrl]);
@@ -1137,7 +1161,7 @@ const App: React.FC = () => {
                       width: `${progressPercent}%`,
                       background: getStepGradient(progressPercent),
                       boxShadow: getStepGlow(progressPercent),
-                      transition: "width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 1s ease, box-shadow 1s ease",
+                      transition: "width 0.08s linear, background 1s ease, box-shadow 1s ease",
                     }}
                   />
                   {/* Spark tip */}
@@ -1226,6 +1250,8 @@ const App: React.FC = () => {
                 manifestJson={manifestJson}
                 repoUrl={repoUrl}
                 githubToken={githubToken}
+                repoReadme={repoReadme}
+                repoFileStructure={repoFileStructure}
               />
             </section>
           )}
