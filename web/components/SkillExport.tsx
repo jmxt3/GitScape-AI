@@ -121,10 +121,10 @@ export const SkillExport: React.FC<SkillExportProps> = ({
       // until the next ## header or end of file
       const SECTION_HEADERS: Record<SkillSection, string> = {
         description: "",       // handled above
-        overview:     "## Overview",
+        overview: "## Overview",
         capabilities: "## Capabilities",
-        usage:        "## Usage Instructions",
-        boundaries:   "## Boundaries",
+        usage: "## Usage Instructions",
+        boundaries: "## Boundaries",
       };
       const header = SECTION_HEADERS[section];
       if (!header) return base;
@@ -151,10 +151,10 @@ export const SkillExport: React.FC<SkillExportProps> = ({
     }
     const headers: Record<SkillSection, string> = {
       description: "",
-      overview:     "## Overview",
+      overview: "## Overview",
       capabilities: "## Capabilities",
-      usage:        "## Usage Instructions",
-      boundaries:   "## Boundaries",
+      usage: "## Usage Instructions",
+      boundaries: "## Boundaries",
     };
     const header = headers[section];
     if (!header) return "";
@@ -311,7 +311,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
                   <>✨ Re-write Skill</>
                 )}
                 {!llmLoading && (
-                  <span className="ml-1 text-[9px] font-semibold tracking-wider uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded">WebGPU</span>
+                  <span className="ml-1 text-[9px] font-semibold tracking-wider uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded">WebLLM</span>
                 )}
               </span>
             </button>
@@ -319,7 +319,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
             <div className="absolute bottom-full right-0 mb-2 w-64 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50">
               <div className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-[11px] text-slate-300 leading-relaxed shadow-xl">
                 <p className="font-semibold text-slate-200 mb-0.5">AI-powered SKILL.md</p>
-                Rewrites all 5 sections one at a time using an on-device model via WebGPU — no data leaves your browser.
+                Rewrites all 5 sections using a GPU-accelerated, on-device model via WebLLM—ensuring no data ever leaves your browser.
                 <div className="absolute top-full right-4 border-4 border-transparent border-t-slate-600" />
               </div>
             </div>
@@ -362,13 +362,12 @@ export const SkillExport: React.FC<SkillExportProps> = ({
               return (
                 <div
                   key={section}
-                  className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium border transition-all duration-300 ${
-                    isDone
-                      ? "bg-emerald-900/30 border-emerald-600/40 text-emerald-400"
-                      : isActive
+                  className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium border transition-all duration-300 ${isDone
+                    ? "bg-emerald-900/30 border-emerald-600/40 text-emerald-400"
+                    : isActive
                       ? "bg-amber-500/15 border-amber-500/50 text-amber-300 animate-pulse"
                       : "bg-slate-800/60 border-slate-700 text-slate-500"
-                  }`}
+                    }`}
                 >
                   {isDone ? (
                     <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
@@ -439,10 +438,10 @@ const SKILL_SECTION_META: Record<string, { color: string; hint: string }> = {
 
 // Map SkillSection → the markdown header text it produces in SKILL.md
 const SECTION_HEADER_TEXT: Record<string, string> = {
-  overview:     "## Overview",
+  overview: "## Overview",
   capabilities: "## Capabilities",
-  usage:        "## Usage Instructions",
-  boundaries:   "## Boundaries",
+  usage: "## Usage Instructions",
+  boundaries: "## Boundaries",
 };
 
 const MarkdownPreview: React.FC<{

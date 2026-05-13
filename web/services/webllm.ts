@@ -122,7 +122,7 @@ function buildMessages(
   switch (section) {
     case "description":
       return {
-        max_tokens: 120,
+        max_tokens: 80,
         messages: [sys, { role: "user", content:
 `Improve this AI skill description for the ${repoName} repository (${langStr}).
 
@@ -134,7 +134,7 @@ Write 2-3 sentences. Start with "Use when working with". Keep factual details. N
 
     case "overview":
       return {
-        max_tokens: 180,
+        max_tokens: 120,
         messages: [sys, { role: "user", content:
 `Rewrite the Overview section for the ${repoName} skill.
 
@@ -146,19 +146,19 @@ Write 3 plain-prose sentences. First: what the repo does. Second: key components
 
     case "capabilities":
       return {
-        max_tokens: 240,
+        max_tokens: 160,
         messages: [sys, { role: "user", content:
-`Rewrite the Capabilities list for the ${repoName} skill.
+`Rewrite the Capabilities section for the ${repoName} skill.
 
-Current list:
+Current:
 ${currentContent.substring(0, 500)}
 
-Write exactly 5-6 bullet points. Each starts with "- ". Be specific to ${repoName}. Improve wording only.` }],
+Write a numbered list: 1. 2. 3. 4. 5. Each item under 20 words. Each describes one specific thing this skill enables the agent to do.` }],
       };
 
     case "usage":
       return {
-        max_tokens: 180,
+        max_tokens: 120,
         messages: [sys, { role: "user", content:
 `Rewrite the Usage Instructions for the ${repoName} skill.
 
@@ -170,14 +170,14 @@ Write a numbered list: 1. 2. 3. 4. Each item under 20 words. Tell the agent exac
 
     case "boundaries":
       return {
-        max_tokens: 160,
+        max_tokens: 100,
         messages: [sys, { role: "user", content:
 `Rewrite the Boundaries section for the ${repoName} skill.
 
 Current:
 ${currentContent.substring(0, 400)}
 
-Write a bullet list. Each item starts with "- ". State what the agent must NOT do or must acknowledge. Under 20 words each.` }],
+Write a numbered list: 1. 2. 3. Each item under 20 words. State what the agent must NOT do or must acknowledge.` }],
       };
   }
 }
