@@ -425,15 +425,15 @@ export const SkillExport: React.FC<SkillExportProps> = ({
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 // SKILL.md section metadata — shown as inline annotations in the preview
-const SKILL_SECTION_META: Record<string, { color: string; hint: string }> = {
-  name: { color: "#fbbf24", hint: "Skill identifier used by agent frameworks" },
-  description: { color: "#fbbf24", hint: "What this skill does — the agent reads this to decide when to use it" },
-  usage: { color: "#34d399", hint: "How to invoke this skill in your agent prompt" },
-  when_to_use: { color: "#34d399", hint: "Conditions and tasks this skill is best suited for" },
-  directory_structure: { color: "#fbbf24", hint: "Repository layout — the agent uses this to navigate the codebase" },
-  key_files: { color: "#fbbf24", hint: "Most important files — starting points for any task" },
-  architecture: { color: "#60a5fa", hint: "High-level design patterns and component relationships" },
-  dependencies: { color: "#60a5fa", hint: "External libraries and tools the repo relies on" },
+const SKILL_SECTION_META: Record<string, { hint: string }> = {
+  name: { hint: "Skill identifier used by agent frameworks" },
+  description: { hint: "What this skill does — the agent reads this to decide when to use it" },
+  usage: { hint: "How to invoke this skill in your agent prompt" },
+  when_to_use: { hint: "Conditions and tasks this skill is best suited for" },
+  directory_structure: { hint: "Repository layout — the agent uses this to navigate the codebase" },
+  key_files: { hint: "Most important files — starting points for any task" },
+  architecture: { hint: "High-level design patterns and component relationships" },
+  dependencies: { hint: "External libraries and tools the repo relies on" },
 };
 
 // Map SkillSection → the markdown header text it produces in SKILL.md
@@ -498,7 +498,29 @@ const MarkdownPreview: React.FC<{
     const hasCursor = line.includes('█');
     const displayLine = hasCursor ? line.replace(/█/g, '') : line;
 
-    const isDescLine = (isDescStreaming || isDescDone) && line.includes('description:');
+    const isDescLine = isDescStreaming && line.includes('description:');
+    const isDescDoneLine = isDescDone && line.includes('description:');
+
+    // Determine key label color: yellow when actively streaming desc, green when done, white otherwise
+    const keyLabelColor = isDescLine
+      ? '#fbbf24'
+      : isDescDoneLine
+        ? '#34d399'
+        : inActiveBlock
+          ? '#fbbf24'
+          : inDoneBlock
+            ? '#34d399'
+            : '#cbd5e1';
+
+    const hintColor = isDescLine
+      ? '#fbbf24'
+      : isDescDoneLine
+        ? '#34d399'
+        : inActiveBlock
+          ? '#fbbf24'
+          : inDoneBlock
+            ? '#34d399'
+            : '#64748b';
 
     const baseStyle: React.CSSProperties = inActiveBlock
       ? { display: 'block', background: 'rgba(251,191,36,0.07)' }
@@ -510,17 +532,17 @@ const MarkdownPreview: React.FC<{
       <span key={i} style={baseStyle}>
         {meta ? (
           <span>
-            <span style={{ color: meta.color, fontWeight: 600 }}>{keyMatch![1]}</span>
+            <span style={{ color: keyLabelColor, fontWeight: 600 }}>{keyMatch![1]}</span>
             <span style={{ color: '#64748b' }}>:</span>
             {keyMatch![2] && (
               <span style={{
-                color: isDescLine ? '#fde68a' : '#cbd5e1',
-                background: isDescLine ? 'rgba(251,191,36,0.15)' : undefined,
-                outline: isDescLine ? '1px solid rgba(251,191,36,0.40)' : undefined,
-                borderRadius: isDescLine ? '3px' : undefined,
+                color: isDescLine ? '#fde68a' : isDescDoneLine ? '#6ee7b7' : '#cbd5e1',
+                background: isDescLine ? 'rgba(251,191,36,0.15)' : isDescDoneLine ? 'rgba(52,211,153,0.08)' : undefined,
+                outline: isDescLine ? '1px solid rgba(251,191,36,0.40)' : isDescDoneLine ? '1px solid rgba(52,211,153,0.30)' : undefined,
+                borderRadius: (isDescLine || isDescDoneLine) ? '3px' : undefined,
               }}> {displayLine.slice(keyMatch![1].length + 1).trimStart()}</span>
             )}
-            <span style={{ marginLeft: '10px', fontSize: '9px', color: meta.color, opacity: 0.55, fontStyle: 'italic', letterSpacing: '0.02em' }}>
+            <span style={{ marginLeft: '10px', fontSize: '9px', color: hintColor, opacity: 0.55, fontStyle: 'italic', letterSpacing: '0.02em' }}>
               → {meta.hint}
             </span>
           </span>
