@@ -127,6 +127,57 @@ export const SkillExport: React.FC<SkillExportProps> = ({
   const [selectedFile, setSelectedFile] = useState<string>("SKILL.md");
   const selectedContent = selectedFile === "SKILL.md" ? displaySkillMd : (displayReferences[selectedFile] ?? "");
 
+  const { isTruncated, previewContent, totalLines, displayedLines, totalChars } = useMemo(() => {
+    if (!selectedContent) {
+      return { isTruncated: false, previewContent: "", totalLines: 0, displayedLines: 0, totalChars: 0 };
+    }
+    const totalChars = selectedContent.length;
+    const CHAR_LIMIT = 100000;
+    const LINE_LIMIT = 1000;
+
+    let truncatedByChars = false;
+    let contentToProcess = selectedContent;
+    if (totalChars > CHAR_LIMIT) {
+      contentToProcess = selectedContent.slice(0, CHAR_LIMIT);
+      truncatedByChars = true;
+    }
+
+    const lines = contentToProcess.split("\n");
+    const hasLineLimitExceeded = lines.length > LINE_LIMIT;
+
+    if (hasLineLimitExceeded || truncatedByChars) {
+      let totalLinesCount = 0;
+      for (let i = 0; i < selectedContent.length; i++) {
+        if (selectedContent[i] === "\n") totalLinesCount++;
+      }
+      totalLinesCount++;
+
+      let preview = contentToProcess;
+      let displayedCount = lines.length;
+
+      if (hasLineLimitExceeded) {
+        preview = lines.slice(0, LINE_LIMIT).join("\n");
+        displayedCount = LINE_LIMIT;
+      }
+
+      return {
+        isTruncated: true,
+        previewContent: preview,
+        totalLines: totalLinesCount,
+        displayedLines: displayedCount,
+        totalChars
+      };
+    }
+
+    return {
+      isTruncated: false,
+      previewContent: selectedContent,
+      totalLines: lines.length,
+      displayedLines: lines.length,
+      totalChars
+    };
+  }, [selectedContent]);
+
   const languageList = manifestJson?.metadata?.primary_languages?.join(", ") ?? "—";
   const filesAnalyzed = manifestJson?.metadata?.files_analyzed ?? "—";
   const symbols = manifestJson?.metadata?.symbols_indexed;
@@ -341,8 +392,8 @@ export const SkillExport: React.FC<SkillExportProps> = ({
       </div>
 
       {/* File viewer */}
-      <div className="flex-1 relative rounded-xl overflow-hidden border border-slate-700 bg-slate-950 min-h-[360px]">
-        <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-slate-700/60 z-10 backdrop-blur-sm">
+      <div className="flex-1 relative rounded-xl overflow-hidden border border-slate-700 bg-slate-950 min-h-[360px] flex flex-col">
+        <div className="flex items-center justify-between px-4 py-2 bg-slate-900/80 border-b border-slate-700/60 z-10 backdrop-blur-sm shrink-0">
           <span className="font-mono text-xs text-slate-400">{selectedFile}</span>
           <div className="flex gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
@@ -350,9 +401,20 @@ export const SkillExport: React.FC<SkillExportProps> = ({
             <span className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
           </div>
         </div>
-        <div className="pt-10 h-full overflow-auto">
+        {isTruncated && (
+          <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-amber-300 text-[11px] flex flex-wrap items-center justify-between gap-1.5 z-10 shrink-0">
+            <span className="flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              <span>
+                Large file truncated for performance. Showing first {displayedLines.toLocaleString()} of {totalLines.toLocaleString()} lines ({((previewContent.length / totalChars) * 100).toFixed(1)}% of characters).
+              </span>
+            </span>
+            <span className="opacity-80">Use "Copy" or download ZIP for full content.</span>
+          </div>
+        )}
+        <div className="flex-1 overflow-auto">
           <pre className="p-4 text-xs leading-relaxed font-mono text-slate-300 whitespace-pre-wrap break-words select-all">
-            {selectedContent || <span className="text-slate-600 italic">No content available.</span>}
+            {previewContent || <span className="text-slate-600 italic">No content available.</span>}
           </pre>
         </div>
       </div>
