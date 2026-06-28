@@ -1,0 +1,2249 @@
+Repository: https://github.com/agentskills/agentskills
+Files analyzed: 22
+
+Directory structure:
+└── agentskills-agentskills/
+    ├── .claude
+    │   └── hooks
+    │       └── session-start.sh
+    ├── docs
+    │   ├── client-implementation
+    │   │   └── adding-skills-support.mdx
+    │   ├── images
+    │   │   └── logos
+    │   │       ├── agentman
+    │   │       ├── amp
+    │   │       ├── autohand
+    │   │       ├── block
+    │   │       ├── bub
+    │   │       ├── claude-ai
+    │   │       ├── claude-code
+    │   │       ├── command-code
+    │   │       ├── cursor
+    │   │       ├── databricks
+    │   │       ├── emdash
+    │   │       ├── factory
+    │   │       ├── fast-agent
+    │   │       ├── firebender
+    │   │       ├── gemini-cli
+    │   │       ├── github
+    │   │       ├── google-ai-edge-gallery
+    │   │       ├── goose
+    │   │       ├── junie
+    │   │       ├── kiro
+    │   │       ├── laravel-boost
+    │   │       ├── letta
+    │   │       ├── mistral-vibe
+    │   │       ├── mux
+    │   │       ├── nanobot
+    │   │       ├── oai-codex
+    │   │       ├── ona
+    │   │       ├── opencode
+    │   │       ├── openhands
+    │   │       ├── pi
+    │   │       ├── piebald
+    │   │       ├── qodo
+    │   │       ├── roo-code
+    │   │       ├── snowflake
+    │   │       ├── spring-ai
+    │   │       ├── superconductor
+    │   │       ├── tabnine
+    │   │       ├── trae
+    │   │       ├── vita
+    │   │       ├── vscode
+    │   │       ├── vtcode
+    │   │       └── workshop
+    │   ├── skill-creation
+    │   │   ├── best-practices.mdx
+    │   │   ├── evaluating-skills.mdx
+    │   │   ├── optimizing-descriptions.mdx
+    │   │   ├── quickstart.mdx
+    │   │   └── using-scripts.mdx
+    │   ├── snippets
+    │   │   ├── clients.jsx
+    │   │   ├── ClientShowcase.jsx
+    │   │   └── LogoCarousel.jsx
+    │   ├── CLAUDE.md
+    │   ├── clients.mdx
+    │   ├── home.mdx
+    │   ├── LICENSE
+    │   ├── README.md
+    │   ├── specification.mdx
+    │   └── style.css
+    ├── skills-ref
+    │   ├── src
+    │   │   └── skills_ref
+    │   │       ├── __init__.py
+    │   │       ├── cli.py
+    │   │       ├── errors.py
+    │   │       ├── models.py
+    │   │       ├── parser.py
+    │   │       ├── prompt.py
+    │   │       └── validator.py
+    │   ├── tests
+    │   │   ├── __init__.py
+    │   │   ├── test_parser.py
+    │   │   ├── test_prompt.py
+    │   │   └── test_validator.py
+    │   ├── .gitignore
+    │   ├── CLAUDE.md
+    │   ├── LICENSE
+    │   ├── pyproject.toml
+    │   └── README.md
+    ├── .gitignore
+    ├── CONTRIBUTING.md
+    ├── LICENSE
+    └── README.md
+
+
+================================================
+FILE: CONTRIBUTING.md
+================================================
+# Contributing to Agent Skills
+
+Thank you for your interest in contributing to Agent Skills! This document explains how to contribute and where different types of feedback belong.
+
+## Types of Contributions
+
+### Documentation Improvements
+
+We welcome improvements to the [documentation site](https://agentskills.io) — typo fixes, clarity improvements, better examples, and new guides. Documentation lives in the `docs/` directory.
+
+### Bug Reports
+
+Found a bug in the spec, documentation, or reference library? [Open an issue](https://github.com/agentskills/agentskills/issues).
+
+### Proposals, Questions, and Feedback
+
+Have a feature request, spec design question, or general feedback? [Start a discussion](https://github.com/agentskills/agentskills/discussions). We use Discussions for proposals and open-ended conversation, and reserve Issues for concrete bugs and problems.
+
+Proposals should address real implementation challenges you've encountered, not theoretical concerns. Show us the problem you faced and how your proposal addresses it.
+
+We maintain a high bar for additions to the spec — it is much easier to add things to a specification than to remove them. Every new feature adds complexity that all implementers must understand and support. When in doubt, leave it out.
+
+> [!NOTE]
+> **Not sure where to post?** Default to [Discussions](https://github.com/agentskills/agentskills/discussions). If it turns out to be a bug, we'll convert it to an issue.
+
+### Ecosystem Listings & Logo Requests
+
+If your product or platform has implemented Agent Skills compatibility, you can request to be listed on [agentskills.io](https://agentskills.io). Your product must be publicly available and able to discover and execute skills today — we do not list products that have only announced intent to support Skills or are still in private beta.
+
+Submit a pull request with:
+
+1. **Logo files** — SVG preferred; PNG acceptable (min 200×200px). Provide light and dark variants and follow the existing format in `docs/images/logos/`.
+2. **A client entry** — Add your product to the array in [`docs/snippets/clients.jsx`](docs/snippets/clients.jsx).
+3. **Product information** — In your PR description, include your product name, a link to your product, and a link to documentation showing your Skills implementation.
+
+We may ask for a demo or screenshot to verify the implementation. Logo requests are reviewed by the Anthropic team.
+
+### Reference Library (`skills-ref/`)
+
+We're still determining the direction for the reference library and are not accepting code contributions to it at this time. Bug reports and feedback are still welcome via [Issues](https://github.com/agentskills/agentskills/issues) and [Discussions](https://github.com/agentskills/agentskills/discussions), respectively.
+
+### What We're Not Accepting (Yet)
+
+To keep the project focused during this early stage, we are currently not accepting:
+
+- **Skill submissions** — We don't maintain a directory of community skills. This may change in the future.
+- **Major architectural changes** — We're still iterating on the core specification. Large-scale redesigns are premature.
+
+If you're unsure whether your contribution fits, open a [Discussion](https://github.com/agentskills/agentskills/discussions) before investing significant effort.
+
+## Development Setup
+
+### Documentation Site
+
+The docs site is built with [Mintlify](https://mintlify.com/).
+
+```bash
+# Install Mintlify CLI
+npm i -g mint
+
+# Run local dev server from the docs/ directory
+cd docs && mint dev
+```
+
+Local preview will be available at `http://localhost:3000`.
+
+## Submitting Changes
+
+1. [Fork the repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
+2. Create a branch for your changes
+3. Make your changes and verify they work locally
+4. Submit a pull request
+
+Keep PRs focused on one logical change and link any related issues.
+
+## AI Contributions
+
+> [!IMPORTANT]
+> If you are using **any kind of AI assistance** to contribute to Agent Skills, it must be disclosed in the pull request or issue.
+
+We welcome and encourage the use of AI tools to help improve Agent Skills. Many valuable contributions have been enhanced with AI assistance for code generation, issue detection, and documentation.
+
+That being said, if you are using any kind of AI assistance (e.g., agents such as Claude Code, ChatGPT) while contributing to Agent Skills, **this must be disclosed in the pull request or issue**, along with the extent to which AI assistance was used (e.g., documentation comments vs. code generation).
+
+If your PR responses or comments are being generated by an AI, disclose that as well.
+
+As an exception, trivial spacing or typo fixes don't need to be disclosed.
+
+An example disclosure:
+
+> This PR was written primarily by Claude Code.
+
+Or a more detailed disclosure:
+
+> I consulted ChatGPT to understand the codebase but the solution was fully authored manually by myself.
+
+Failure to disclose AI assistance is first and foremost rude to the human reviewers on the other end of the pull request, but it also makes it difficult to determine how much scrutiny to apply to the contribution.
+
+### What we're looking for
+
+When submitting AI-assisted contributions, please ensure they include:
+
+- **Clear disclosure of AI use** — Be transparent about AI use and the degree to which you used it
+- **Human understanding** — You personally understand what the changes do
+- **Clear rationale** — You can explain why the change is needed and how it fits within Agent Skills goals
+- **Concrete evidence** — Include test cases, scenarios, or examples that demonstrate the improvement
+
+### What we'll close
+
+We reserve the right to close submissions that appear to not follow the disclosure policy.
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the [Apache License 2.0](LICENSE) for code and specification files, and [CC-BY 4.0](docs/LICENSE) for documentation.
+
+
+================================================
+FILE: README.md
+================================================
+# Agent Skills
+
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/MKPE9g8aUy)
+
+A standardized way to give AI agents new capabilities and expertise.
+
+## What are Agent Skills?
+
+Agent Skills are a lightweight, open format for extending AI agent capabilities with specialized knowledge and workflows.
+
+At its core, a skill is a folder containing a `SKILL.md` file. This file includes metadata (`name` and `description`, at minimum) and instructions that tell an agent how to perform a specific task. Skills can also bundle scripts, reference materials, templates, and other resources.
+
+```
+my-skill/
+├── SKILL.md          # Required: metadata + instructions
+├── scripts/          # Optional: executable code
+├── references/       # Optional: documentation
+├── assets/           # Optional: templates, resources
+└── ...               # Any additional files or directories
+```
+
+## Why Agent Skills?
+
+Agents are increasingly capable, but often don't have the context they need to do real work reliably. Skills solve this by packaging procedural knowledge and company-, team-, and user-specific context into portable, version-controlled folders that agents load on demand. This gives agents:
+
+- **Domain expertise**: Capture specialized knowledge — from legal review processes to data analysis pipelines to presentation formatting — as reusable instructions and resources.
+- **Repeatable workflows**: Turn multi-step tasks into consistent, auditable procedures.
+- **Cross-product reuse**: Build a skill once and use it across any skills-compatible agent.
+
+## How do Agent Skills work?
+
+Agents load skills through **progressive disclosure**, in three stages:
+
+1. **Discovery**: At startup, agents load only the name and description of each available skill, just enough to know when it might be relevant.
+
+2. **Activation**: When a task matches a skill's description, the agent reads the full `SKILL.md` instructions into context.
+
+3. **Execution**: The agent follows the instructions, optionally executing bundled code or loading referenced files as needed.
+
+Full instructions load only when a task calls for them, so agents can keep many skills on hand with only a small context footprint.
+
+## Where can I use Agent Skills?
+
+Agent Skills are supported by a large number of AI tools and agentic clients — see the [Client Showcase](https://agentskills.io/clients) to explore some of them!
+
+## Getting started
+
+- **[Documentation](https://agentskills.io)** — Guides and tutorials
+- **[Specification](https://agentskills.io/specification)** — Format details
+- **[Example Skills](https://github.com/anthropics/skills)** — See what's possible
+- **[Discord](https://discord.gg/MKPE9g8aUy)** — Share what you're building!
+
+## Open development
+
+The Agent Skills format was originally developed by [Anthropic](https://www.anthropic.com/), released as an open standard, and has been adopted by a growing number of agent products. The standard is open to contributions from the broader ecosystem — see [`CONTRIBUTING.md`](CONTRIBUTING.md) for how to get involved.
+
+## License
+
+Code in this repository is licensed under [Apache 2.0](LICENSE). Documentation is licensed under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/). See individual directories for details.
+
+
+================================================
+FILE: .claude/hooks/session-start.sh
+================================================
+#!/usr/bin/env bash
+# Session start hook for agentskills documentation project
+echo '{"async":true,"asyncTimeout":15000}'
+
+# Check if Mintlify CLI is installed
+if ! command -v mint &> /dev/null; then
+  echo "Mintlify CLI not installed. Install with: npm i -g mint"
+fi
+
+
+================================================
+FILE: docs/CLAUDE.md
+================================================
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository. The project defines an open format for teaching AI agents specialized workflows through SKILL.md files.
+
+## Documentation
+
+The Agent Skills documentation site, defined in the `docs/` directory, is built with [Mintlify](https://mintlify.com).
+
+### Quick Start Commands
+
+```bash
+# Run local development server
+npm run dev
+```
+
+Local preview available at `http://localhost:3000`
+
+### Development Notes
+
+- **Navigation**: Defined in `docs/docs.json` under `navigation.pages` array
+- **Adding pages**: Create new `.mdx` file in `/docs`, add filename (without extension) to navigation
+- **Deployment**: Automatic on push to `main` branch
+- **Troubleshooting**: If page shows 404, ensure you're running `mint dev` from directory containing `docs.json`
+
+
+================================================
+FILE: docs/README.md
+================================================
+# Agent Skills Documentation
+
+This directory contains the source code for the Agent Skills [documentation site](https://agentskills.io/), which is built using [Mintlify](https://mintlify.com).
+
+## Development
+
+Run the following command at the documentation root, where `docs.json` is located:
+
+```bash
+npx mint dev
+```
+
+View your local preview at `http://localhost:3000`.
+
+## Publishing changes
+
+Changes are deployed to production automatically after pushing to the default branch.
+
+
+================================================
+FILE: docs/snippets/ClientShowcase.jsx
+================================================
+{/*
+  Client showcase component.
+  2-column grid cards with logo on top, links stacked below description.
+  Defaults to shuffled order for fairness; toggle to switch to alphabetical.
+*/}
+export const ClientShowcase = ({clients}) => {
+  const shuffle = (arr) => {
+    const copy = arr.slice();
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  };
+
+  const sort = (clients) => clients.toSorted((a, b) => a.name.localeCompare(b.name));
+
+  const [state, dispatch] = React.useReducer((state, action) => {
+    switch (action) {
+      case "shuffle": return { mode: "shuffle", clients: shuffle(clients) };
+      case "alpha":   return { mode: "alpha", clients: sort(clients) };
+      default:        return state;
+    }
+  }, { mode: "shuffle", clients: shuffle(clients) });
+
+  const Logo = ({ client }) => (
+    <a href={client.url} className="block no-underline border-none w-full h-full">
+      <img className="block dark:hidden object-contain w-full h-full !my-0" src={client.lightSrc} alt={client.name} noZoom />
+      <img className="hidden dark:block object-contain w-full h-full !my-0" src={client.darkSrc} alt={client.name} noZoom />
+    </a>
+  );
+
+  const ToggleButton = ({ active, onClick, icon, title }) => (
+    <button
+      onClick={onClick}
+      title={title}
+      className={`px-3 py-1 cursor-pointer border-none ${
+        active
+          ? 'bg-gray-200 dark:bg-gray-600'
+          : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+      }`}
+    >
+      <Icon icon={icon} size={16} />
+    </button>
+  );
+
+  return (
+    <div>
+      <div className="flex justify-end mb-3">
+        <div className="inline-flex rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <ToggleButton active={state.mode === "shuffle"} onClick={() => dispatch("shuffle")} icon="shuffle" title="Shuffle" />
+          <ToggleButton active={state.mode === "alpha"} onClick={() => dispatch("alpha")} icon="arrow-down-a-z" title="Alphabetical" />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {state.clients.map(client => (
+          <div key={client.name} className="border border-gray-200 dark:border-gray-700 rounded-lg px-5 py-3 flex flex-col">
+            <div className="mx-auto mb-1.5" style={{height: 80, width: 150 * (client.scale || 1)}}>
+              <Logo client={client} />
+            </div>
+            <div className="text-base font-semibold mb-1.5"><a href={client.url}>{client.name}</a></div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 m-0 leading-normal flex-1">{client.description}</p>
+            {(client.instructionsUrl || client.sourceCodeUrl) && (
+              <div className="border-t border-gray-100 dark:border-gray-800 -mx-5 -mb-3 mt-3 px-5 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-b-lg text-sm text-gray-500 dark:text-gray-400 flex flex-wrap gap-x-5 gap-y-1">
+                {client.instructionsUrl && (
+                  <span className="whitespace-nowrap">
+                    <Icon icon="gear" size={14} /> <a href={client.instructionsUrl} className="text-gray-500 dark:text-gray-400">Setup instructions</a>
+                  </span>
+                )}
+                {client.sourceCodeUrl && (
+                  <span className="whitespace-nowrap">
+                    <Icon icon="code" size={14} /> <a href={client.sourceCodeUrl} className="text-gray-500 dark:text-gray-400">Source code</a>
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
+================================================
+FILE: docs/snippets/LogoCarousel.jsx
+================================================
+{/*
+  LogoCarousel component for the Agent Skills documentation.
+  Shuffles clients on each page load for fair exposure.
+*/}
+export const LogoCarousel = ({clients}) => {
+  const [shuffled, setShuffled] = useState(clients);
+
+  /* Shuffle clients on component mount */
+  useEffect(() => {
+    const shuffle = (items) => {
+      const copy = [...items];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    };
+    setShuffled(shuffle(clients));
+  }, []);
+
+  const doubled = [...shuffled, ...shuffled];
+
+  const GAP_PX = 48; // 3rem at the default 16px base
+  const PX_PER_SECOND = 40;
+  const cycleWidth = shuffled.reduce(
+    (sum, client) => sum + 150 * (client.scale || 1) + GAP_PX,
+    0,
+  );
+  const cycleDuration = cycleWidth / PX_PER_SECOND;
+
+  const Logo = ({ client }) => (
+    <a href={client.url} className="block no-underline border-none w-full h-full">
+      <img className="block dark:hidden object-contain w-full h-full !my-0" src={client.lightSrc} alt={client.name} noZoom />
+      <img className="hidden dark:block object-contain w-full h-full !my-0" src={client.darkSrc} alt={client.name} noZoom />
+    </a>
+  );
+
+  return (
+    <div className="logo-carousel">
+      <div className="logo-carousel-track" style={{ animation: `logo-scroll ${cycleDuration}s linear infinite` }}>
+        {doubled.map((client, i) => (
+          <div key={`${client.name}-${i}`} style={{ width: 150 * (client.scale || 1), maxWidth: "100%" }}>
+            <Logo client={client} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
+================================================
+FILE: docs/snippets/clients.jsx
+================================================
+/*
+  Shared client data for the Agent Skills documentation.
+
+  To add a new client:
+  1. Add logo files to /images/logos/[logo-name]/
+  2. Add entry to the clients array below
+*/
+export const clients = [
+  {
+    name: "Junie",
+    description: "Junie is an LLM-agnostic coding agent built for real-world development. It is built on top of the IntelliJ Platform, so it understands your project the same way your editor does.",
+    url: "https://junie.jetbrains.com/",
+    lightSrc: "/images/logos/junie/junie-logo-on-white.svg",
+    darkSrc: "/images/logos/junie/junie-logo-on-dark.svg",
+    instructionsUrl: "https://junie.jetbrains.com/docs/agent-skills.html",
+  },
+  {
+    name: "Gemini CLI",
+    description: "Gemini CLI is an open-source AI agent that brings the power of Gemini directly into your terminal.",
+    url: "https://geminicli.com",
+    lightSrc: "/images/logos/gemini-cli/gemini-cli-logo_light.svg",
+    darkSrc: "/images/logos/gemini-cli/gemini-cli-logo_dark.svg",
+    instructionsUrl: "https://geminicli.com/docs/cli/skills/",
+    sourceCodeUrl: "https://github.com/google-gemini/gemini-cli",
+  },
+  {
+    name: "Autohand Code CLI",
+    description: "Autohand Code CLI is an autonomous LLM-powered coding agent that lives in your terminal. It uses the ReAct (Reason + Act) pattern to understand your codebase, plan changes, and execute them with your approval.",
+    url: "https://autohand.ai/",
+    lightSrc: "/images/logos/autohand/autohand-light.svg",
+    darkSrc: "/images/logos/autohand/autohand-dark.svg",
+    scale: 0.8,
+    instructionsUrl: "https://autohand.ai/docs/working-with-autohand-code/agent-skills.html",
+    sourceCodeUrl: "https://github.com/autohandai/code-cli",
+  },
+  {
+    name: "OpenCode",
+    description: "OpenCode is an open source agent that helps you write code in your terminal, IDE, or desktop.",
+    url: "https://opencode.ai/",
+    lightSrc: "/images/logos/opencode/opencode-wordmark-light.svg",
+    darkSrc: "/images/logos/opencode/opencode-wordmark-dark.svg",
+    instructionsUrl: "https://opencode.ai/docs/skills/",
+    sourceCodeUrl: "https://github.com/sst/opencode",
+  },
+  {
+    name: "OpenHands",
+    description: "OpenHands is the open platform for cloud coding agents. Scale from one to thousands of agents — open source, model-agnostic, and enterprise-ready.",
+    url: "https://openhands.dev/",
+    lightSrc: "/images/logos/openhands/openhands-logo-light.svg",
+    darkSrc: "/images/logos/openhands/openhands-logo-dark.svg",
+    instructionsUrl: "https://docs.openhands.dev/overview/skills",
+    sourceCodeUrl: "https://github.com/OpenHands/OpenHands",
+  },
+  {
+    name: "Mux",
+    description: "Mux makes it easy to run parallel coding agents, each with its own isolated workspace, right from your browser or desktop. Mux is open source and LLM provider-agnostic.",
+    url: "https://mux.coder.com/",
+    lightSrc: "/images/logos/mux/mux-editor-light.svg",
+    darkSrc: "/images/logos/mux/mux-editor-dark.svg",
+    scale: 0.8,
+    instructionsUrl: "https://mux.coder.com/agent-skills",
+    sourceCodeUrl: "https://github.com/coder/mux",
+  },
+  {
+    name: "Cursor",
+    description: "Cursor is an AI editor and coding agent. Use it to understand your codebase, plan and build features, fix bugs, review changes, and work with the tools you already use.",
+    url: "https://cursor.com/",
+    lightSrc: "/images/logos/cursor/LOCKUP_HORIZONTAL_2D_LIGHT.svg",
+    darkSrc: "/images/logos/cursor/LOCKUP_HORIZONTAL_2D_DARK.svg",
+    instructionsUrl: "https://cursor.com/docs/context/skills",
+  },
+  {
+    name: "Amp",
+    description: "Amp is the frontier coding agent that lets you wield the full power of leading models.",
+    url: "https://ampcode.com/",
+    lightSrc: "/images/logos/amp/amp-logo-light.svg",
+    darkSrc: "/images/logos/amp/amp-logo-dark.svg",
+    scale: 0.8,
+    instructionsUrl: "https://ampcode.com/manual#agent-skills",
+  },
+  {
+    name: "Letta",
+    description: "Letta is the platform for building stateful agents: AI with advanced memory that can learn and self-improve over time.",
+    url: "https://www.letta.com/",
+    lightSrc: "/images/logos/letta/Letta-logo-RGB_OffBlackonTransparent.svg",
+    darkSrc: "/images/logos/letta/Letta-logo-RGB_GreyonTransparent.svg",
+    instructionsUrl: "https://docs.letta.com/letta-code/skills/",
+    sourceCodeUrl: "https://github.com/letta-ai/letta",
+  },
+  {
+    name: "Firebender",
+    description: "Firebender is the first Android-native coding agent that writes features, tests them in the emulator, and fixes issues automatically.",
+    url: "https://firebender.com/",
+    lightSrc: "/images/logos/firebender/firebender-wordmark-light.svg",
+    darkSrc: "/images/logos/firebender/firebender-wordmark-dark.svg",
+    instructionsUrl: "https://docs.firebender.com/multi-agent/skills",
+  },
+  {
+    name: "Goose",
+    description: "Goose is an open source, extensible AI agent that goes beyond code suggestions — install, execute, edit, and test with any LLM.",
+    url: "https://block.github.io/goose/",
+    lightSrc: "/images/logos/goose/goose-logo-black.png",
+    darkSrc: "/images/logos/goose/goose-logo-white.png",
+    instructionsUrl: "https://block.github.io/goose/docs/guides/context-engineering/using-skills/",
+    sourceCodeUrl: "https://github.com/block/goose",
+  },
+  {
+    name: "GitHub Copilot",
+    description: "GitHub Copilot works alongside you directly in your editor, suggesting whole lines or entire functions for you.",
+    url: "https://github.com/",
+    lightSrc: "/images/logos/github/GitHub_Lockup_Dark.svg",
+    darkSrc: "/images/logos/github/GitHub_Lockup_Light.svg",
+    instructionsUrl: "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
+    sourceCodeUrl: "https://github.com/microsoft/vscode-copilot-chat",
+  },
+  {
+    name: "VS Code",
+    description: "Visual Studio Code combines the simplicity of a code editor with what developers need for their core edit-build-debug cycle.",
+    url: "https://code.visualstudio.com/",
+    lightSrc: "/images/logos/vscode/vscode.svg",
+    darkSrc: "/images/logos/vscode/vscode-alt.svg",
+    instructionsUrl: "https://code.visualstudio.com/docs/copilot/customization/agent-skills",
+    sourceCodeUrl: "https://github.com/microsoft/vscode",
+  },
+  {
+    name: "Claude Code",
+    description: "Claude Code is an agentic coding tool that reads your codebase, edits files, runs commands, and integrates with your development tools. Available in your terminal, IDE, desktop app, and browser.",
+    url: "https://claude.ai/code",
+    lightSrc: "/images/logos/claude-code/Claude-Code-logo-Slate.svg",
+    darkSrc: "/images/logos/claude-code/Claude-Code-logo-Ivory.svg",
+    instructionsUrl: "https://code.claude.com/docs/en/skills",
+  },
+  {
+    name: "Claude",
+    description: "Claude is Anthropic's AI, built for problem solvers. Tackle complex challenges, analyze data, write code, and think through your hardest work.",
+    url: "https://claude.ai/",
+    lightSrc: "/images/logos/claude-ai/Claude-logo-Slate.svg",
+    darkSrc: "/images/logos/claude-ai/Claude-logo-Ivory.svg",
+    instructionsUrl: "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview",
+  },
+  {
+    name: "OpenAI Codex",
+    description: "Codex is OpenAI's coding agent for software development.",
+    url: "https://developers.openai.com/codex",
+    lightSrc: "/images/logos/oai-codex/OAI_Codex-Lockup_400px.svg",
+    darkSrc: "/images/logos/oai-codex/OAI_Codex-Lockup_400px_Darkmode.svg",
+    instructionsUrl: "https://developers.openai.com/codex/skills/",
+    sourceCodeUrl: "https://github.com/openai/codex",
+  },
+  {
+    name: "Piebald",
+    description: "Piebald is a desktop & web app that makes it easier than ever to do agentic development, while at the same time giving you complete control over the configuration, context, and flow.",
+    url: "https://piebald.ai",
+    lightSrc: "/images/logos/piebald/Piebald_wordmark_light.svg",
+    darkSrc: "/images/logos/piebald/Piebald_wordmark_dark.svg",
+  },
+  {
+    name: "Factory",
+    description: "Factory is an AI-native software development platform that works everywhere you do. From IDE to CI/CD — delegate complete tasks like refactors, incident response, and migrations to Droids without changing your tools, models, or workflow.",
+    url: "https://factory.ai/",
+    lightSrc: "/images/logos/factory/factory-logo-light.svg",
+    darkSrc: "/images/logos/factory/factory-logo-dark.svg",
+    instructionsUrl: "https://docs.factory.ai/cli/configuration/skills",
+  },
+  {
+    name: "pi",
+    description: "Pi is a minimal terminal coding harness. Adapt pi to your workflows, not the other way around.",
+    url: "https://shittycodingagent.ai/",
+    lightSrc: "/images/logos/pi/pi-logo-light.svg",
+    darkSrc: "/images/logos/pi/pi-logo-dark.svg",
+    scale: 0.55,
+    instructionsUrl: "https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/skills.md",
+    sourceCodeUrl: "https://github.com/badlogic/pi-mono",
+  },
+  {
+    name: "Databricks Genie Code",
+    description: "Genie Code is an autonomous AI partner purpose-built for data work in Databricks.",
+    url: "https://databricks.com/",
+    lightSrc: "/images/logos/databricks/databricks-logo-light.svg",
+    darkSrc: "/images/logos/databricks/databricks-logo-dark.svg",
+    instructionsUrl: "https://docs.databricks.com/aws/en/assistant/skills",
+  },
+  {
+    name: "Agentman",
+    description: "Agentman is an agentic healthcare platform. It automates revenue cycle workflows using AI agents without sacrificing control. Every action is testable, traceable, and auditable.",
+    url: "https://agentman.ai/",
+    lightSrc: "/images/logos/agentman/agentman-wordmark-light.svg",
+    darkSrc: "/images/logos/agentman/agentman-wordmark-dark.svg",
+    instructionsUrl: "https://agentman.ai/agentskills",
+  },
+  {
+    name: "TRAE",
+    description: "Trae is an adaptive AI IDE that transforms how you work, collaborating with you to run faster.",
+    url: "https://trae.ai/",
+    lightSrc: "/images/logos/trae/trae-logo-lightmode.svg",
+    darkSrc: "/images/logos/trae/trae-logo-darkmode.svg",
+    instructionsUrl: "https://www.trae.ai/blog/trae_tutorial_0115",
+    sourceCodeUrl: "https://github.com/bytedance/trae-agent",
+  },
+  {
+    name: "Spring AI",
+    description: "Spring AI aims to streamline the development of applications that incorporate artificial intelligence functionality without unnecessary complexity.",
+    url: "https://docs.spring.io/spring-ai/reference",
+    lightSrc: "/images/logos/spring-ai/spring-ai-logo-light.svg",
+    darkSrc: "/images/logos/spring-ai/spring-ai-logo-dark.svg",
+    instructionsUrl: "https://spring.io/blog/2026/01/13/spring-ai-generic-agent-skills/",
+    sourceCodeUrl: "https://github.com/spring-projects/spring-ai",
+  },
+  {
+    name: "Roo Code",
+    description: "Roo Code puts an entire AI dev team right in your editor, outpacing closed tools with deep project-wide context, multi-step agentic coding, and unmatched developer-centric flexibility.",
+    url: "https://roocode.com",
+    lightSrc: "/images/logos/roo-code/roo-code-logo-black.svg",
+    darkSrc: "/images/logos/roo-code/roo-code-logo-white.svg",
+    instructionsUrl: "https://docs.roocode.com/features/skills",
+    sourceCodeUrl: "https://github.com/RooCodeInc/Roo-Code",
+  },
+  {
+    name: "Mistral AI Vibe",
+    description: "Mistral Vibe is a command-line coding assistant powered by Mistral's models. It provides a conversational interface to your codebase, allowing you to use natural language to explore, modify, and interact with your projects through a powerful set of tools.",
+    url: "https://github.com/mistralai/mistral-vibe",
+    lightSrc: "/images/logos/mistral-vibe/vibe-logo_black.svg",
+    darkSrc: "/images/logos/mistral-vibe/vibe-logo_white.svg",
+    scale: 0.55,
+    instructionsUrl: "https://github.com/mistralai/mistral-vibe",
+    sourceCodeUrl: "https://github.com/mistralai/mistral-vibe",
+  },
+  {
+    name: "Command Code",
+    description: "Command Code is a coding agent that continuously learns your coding taste. Our meta neuro-symbolic AI model taste-1 with continuous reinforcement learning combines LLMs with your coding taste.",
+    url: "https://commandcode.ai/",
+    lightSrc: "/images/logos/command-code/command-code-logo-for-light.svg",
+    darkSrc: "/images/logos/command-code/command-code-logo-for-dark.svg",
+    scale: 1.33,
+    instructionsUrl: "https://commandcode.ai/docs/skills",
+  },
+  {
+    name: "Ona",
+    description: "Ona is a platform for background agents. Run a team of AI software engineers in the cloud. Orchestrated, governed, secured at the kernel.",
+    url: "https://ona.com",
+    lightSrc: "/images/logos/ona/ona-wordmark-light.svg",
+    darkSrc: "/images/logos/ona/ona-wordmark-dark.svg",
+    scale: 0.8,
+    instructionsUrl: "https://ona.com/docs/ona/agents-md#skills-for-repository-specific-workflows",
+  },
+  {
+    name: "VT Code",
+    description: "VT Code is an open-source coding agent with LLM-native code understanding and robust shell safety. Supports multiple LLM providers with automatic failover and efficient context management.",
+    url: "https://github.com/vinhnx/vtcode",
+    lightSrc: "/images/logos/vtcode/vt_code_light.svg",
+    darkSrc: "/images/logos/vtcode/vt_code_dark.svg",
+    instructionsUrl: "https://github.com/vinhnx/vtcode/blob/main/docs/skills/SKILLS_GUIDE.md",
+    sourceCodeUrl: "https://github.com/vinhnx/VTCode",
+  },
+  {
+    name: "Qodo",
+    description: "Qodo is an agentic code integrity platform for reviewing, testing, and writing code, integrating AI across development workflows to strengthen code quality at every stage.",
+    url: "https://www.qodo.ai/",
+    lightSrc: "/images/logos/qodo/qodo-logo-light.png",
+    darkSrc: "/images/logos/qodo/qodo-logo-dark.svg",
+    instructionsUrl: "https://www.qodo.ai/blog/how-i-use-qodos-agent-skills-to-auto-fix-issues-in-pull-requests/",
+  },
+  {
+    name: "Laravel Boost",
+    description: "Laravel Boost accelerates AI-assisted development by providing the essential guidelines and agent skills that help AI agents write high-quality Laravel applications that adhere to Laravel best practices.",
+    url: "https://github.com/laravel/boost",
+    lightSrc: "/images/logos/laravel-boost/boost-light-mode.svg",
+    darkSrc: "/images/logos/laravel-boost/boost-dark-mode.svg",
+    instructionsUrl: "https://laravel.com/docs/12.x/boost#agent-skills",
+    sourceCodeUrl: "https://github.com/laravel/boost",
+  },
+  {
+    name: "Emdash",
+    description: "Emdash is a provider-agnostic desktop app that lets you run multiple coding agents in parallel, each isolated in its own git worktree, either locally or over SSH on a remote machine.",
+    url: "https://emdash.sh",
+    lightSrc: "/images/logos/emdash/emdash-logo-light.svg",
+    darkSrc: "/images/logos/emdash/emdash-logo-dark.svg",
+    instructionsUrl: "https://docs.emdash.sh/skills",
+    sourceCodeUrl: "https://github.com/generalaction/emdash",
+  },
+  {
+    name: "Snowflake Cortex Code",
+    description: "Cortex Code is an AI-driven intelligent agent integrated into the Snowflake platform, optimized for complex data engineering, analytics, machine learning, and agent-building tasks.",
+    url: "https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code",
+    lightSrc: "/images/logos/snowflake/snowflake-logo-light.svg",
+    darkSrc: "/images/logos/snowflake/snowflake-logo-dark.svg",
+    instructionsUrl: "https://docs.snowflake.com/en/user-guide/cortex-code/extensibility#extensibility-skills",
+  },
+  {
+    name: "Kiro",
+    description: "Kiro helps you do your best work by bringing structure to AI coding with spec-driven development.",
+    url: "https://kiro.dev/",
+    lightSrc: "/images/logos/kiro/kiro-logo-light.svg",
+    darkSrc: "/images/logos/kiro/kiro-logo-dark.svg",
+    instructionsUrl: "https://kiro.dev/docs/skills/",
+  },
+  {
+    name: "Workshop",
+    description: "Workshop is a cross-platform AI coding agent for building full applications. It supports multi-LLM models, sub-agents, custom agents, and skills — available as a desktop app, web app, and CLI.",
+    url: "https://workshop.ai/",
+    lightSrc: "/images/logos/workshop/workshop-logo-light.svg",
+    darkSrc: "/images/logos/workshop/workshop-logo-dark.svg",
+    instructionsUrl: "https://docs.workshop.ai/core-concepts/working-with-the-agent#create-your-own-agents",
+  },
+  {
+    name: "Google AI Edge Gallery",
+    description: "Google AI Edge Gallery is the premier destination for running the world's most powerful open-source Large Language Models (LLMs) on your mobile device",
+    url: "https://github.com/google-ai-edge/gallery",
+    lightSrc: "/images/logos/google-ai-edge-gallery/google-ai-edge-gallery-light.svg",
+    darkSrc: "/images/logos/google-ai-edge-gallery/google-ai-edge-gallery-dark.svg",
+    scale: 0.45,
+    instructionsUrl: "https://github.com/google-ai-edge/gallery/tree/main/skills",
+    sourceCodeUrl: "https://github.com/google-ai-edge/gallery",
+  },
+  {
+    name: "nanobot",
+    description: "nanobot is an ultra-lightweight, open-source personal AI agent. It runs across multiple platforms — terminal, Telegram, Discord, Slack, WeChat, and more — with built-in MCP support and a skills system for extensibility.",
+    url: "https://nanobot.wiki/",
+    lightSrc: "/images/logos/nanobot/nanobot-logo-light.png",
+    darkSrc: "/images/logos/nanobot/nanobot-logo-dark.png",
+    instructionsUrl: "https://nanobot.wiki/docs/0.1.5/use-nanobot/skills",
+    sourceCodeUrl: "https://github.com/HKUDS/nanobot",
+  },
+  {
+    name: "fast-agent",
+    description: "fast-agent is a simple, extendable way to interact with LLMs. Excellent for Coding, Evals, ACPX and Skills development.",
+    url: "https://fast-agent.ai/",
+    lightSrc: "/images/logos/fast-agent/fast-agent-light.svg",
+    darkSrc: "/images/logos/fast-agent/fast-agent-dark.svg",
+    scale: 1.33,
+    instructionsUrl: "https://fast-agent.ai/agents/skills/",
+    sourceCodeUrl: "https://github.com/evalstate/fast-agent",
+  },
+  {
+    name: "bub",
+    description: "Bub is a lightweight, hook-first Python framework for channel-native agents that live alongside people.",
+    url: "https://bub.build/",
+    lightSrc: "/images/logos/bub/bub-light.svg",
+    darkSrc: "/images/logos/bub/bub-dark.svg",
+    instructionsUrl: "https://bub.build/docs/build/skills/",
+    sourceCodeUrl: "https://github.com/bubbuild/bub",
+  },
+  {
+    name: "Tabnine",
+    description: "Tabnine is an AI engineering platform that combines code assistants, agentic workflows, and enterprise context to help development teams build, review, and maintain software with context-aware AI—while keeping code private, secure, and fully under your control.",
+    url: "https://www.tabnine.com/",
+    lightSrc: "/images/logos/tabnine/tabnine-logo-light.svg",
+    darkSrc: "/images/logos/tabnine/tabnine-logo-dark.svg",
+    instructionsUrl: "https://docs.tabnine.com/main/getting-started/tabnine-cli/features/agent-skills",
+  },
+  {
+    name: "Vita",
+    description: "Vita provides autonomous digital workers with virtual desktops to execute complex workflows. It learns your intent to automate end-to-end tasks like creating and posting engaging social media content.",
+    url: "https://www.vita-ai.net",
+    lightSrc: "/images/logos/vita/logo-horizontal-light.svg",
+    darkSrc: "/images/logos/vita/logo-horizontal-dark.svg",
+    instructionsUrl: "https://www.vita-ai.net/docs/features/agent-skills",
+  },
+  {
+    name: "Superconductor",
+    description: "Superconductor is a multiplayer workspace for your team and coding agents. Run many agents in the cloud, build together in shared sessions, and ship faster with live app previews and guided code review.",
+    url: "https://superconductor.com/",
+    lightSrc: "/images/logos/superconductor/superconductor-wordmark-light.svg",
+    darkSrc: "/images/logos/superconductor/superconductor-wordmark-dark.svg",
+    scale: 1.33,
+    instructionsUrl: "https://superconductor.com/docs/project/mcp-and-skills",
+  },
+];
+
+
+================================================
+FILE: docs/style.css
+================================================
+#content-area {
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; /* via Mintlify theme */
+
+  h5 {
+    font-weight: 500;
+  }
+
+  h6 {
+    font-weight: 400;
+  }
+}
+
+
+
+/*** Add automatic section numbers to headings and table of contents items ***/
+
+#enable-section-numbers {
+  display: none;
+}
+
+body:has(#enable-section-numbers) {
+  #content-area,
+  #table-of-contents {
+    counter-reset: h2-counter h3-counter h4-counter h5-counter h6-counter;
+  }
+
+  #content-area h2[id],
+  #table-of-contents li[data-depth="0"] {
+    counter-set: h3-counter h4-counter h5-counter h6-counter;
+  }
+
+  #content-area h3[id],
+  #table-of-contents li[data-depth="1"] {
+    counter-set: h4-counter h5-counter h6-counter;
+  }
+
+  #content-area h4[id],
+  #table-of-contents li[data-depth="2"] {
+    counter-set: h5-counter h6-counter;
+  }
+
+  #content-area h5[id],
+  #content-area h5,
+  #table-of-contents li[data-depth="3"] {
+    counter-set: h6-counter;
+  }
+
+  #content-area h2[id]::before,
+  #table-of-contents li[data-depth="0"] a::before {
+    counter-increment: h2-counter;
+    content: counter(h2-counter) ". ";
+  }
+
+  #content-area h3[id]::before,
+  #table-of-contents li[data-depth="1"] a::before {
+    counter-increment: h3-counter;
+    content: counter(h2-counter) "." counter(h3-counter) " ";
+  }
+
+  #content-area h4[id]::before,
+  #table-of-contents li[data-depth="2"] a::before {
+    counter-increment: h4-counter;
+    content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter)
+      " ";
+  }
+
+  #content-area h5[id]::before,
+  #content-area h5::before,
+  #table-of-contents li[data-depth="3"] a::before {
+    counter-increment: h5-counter;
+    content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter)
+      "." counter(h5-counter) " ";
+  }
+
+  #content-area h6[id]::before,
+  #content-area h6::before,
+  #table-of-contents li[data-depth="4"] a::before {
+    counter-increment: h6-counter;
+    content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter)
+      "." counter(h5-counter) "." counter(h6-counter) " ";
+  }
+}
+
+
+
+/* Logo carousel */
+.logo-carousel {
+  overflow: hidden;
+  width: 100%;
+}
+
+.logo-carousel-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  gap: 3rem;
+  will-change: transform;
+}
+
+@keyframes logo-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-50% - 1.5rem)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-carousel-track { animation: none; }
+}
+
+
+================================================
+FILE: skills-ref/CLAUDE.md
+================================================
+# Development
+
+## Code Quality
+
+Format and lint with ruff:
+
+```bash
+uv run ruff format .
+uv run ruff check --fix .
+```
+
+## Testing
+
+Run tests with pytest:
+
+```bash
+uv run pytest
+```
+
+
+================================================
+FILE: skills-ref/README.md
+================================================
+# skills-ref
+
+Reference library for Agent Skills.
+
+> [!IMPORTANT]
+> This library is intended for demonstration purposes only. It is not meant to be used in production.
+
+## Installation
+
+### macOS / Linux
+
+Using pip:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
+
+Or using [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv sync
+source .venv/bin/activate
+```
+
+### Windows
+
+Using pip (PowerShell):
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -e .
+```
+
+Using pip (Command Prompt):
+
+```cmd
+python -m venv .venv
+.venv\Scripts\activate.bat
+pip install -e .
+```
+
+Or using [uv](https://docs.astral.sh/uv/):
+
+```powershell
+uv sync
+.venv\Scripts\Activate.ps1
+```
+
+After installation, the `skills-ref` executable will be available on your `PATH` (within the activated virtual environment).
+
+## Usage
+
+### CLI
+
+```bash
+# Validate a skill
+skills-ref validate path/to/skill
+
+# Read skill properties (outputs JSON)
+skills-ref read-properties path/to/skill
+
+# Generate <available_skills> XML for agent prompts
+skills-ref to-prompt path/to/skill-a path/to/skill-b
+```
+
+### Python API
+
+```python
+from pathlib import Path
+from skills_ref import validate, read_properties, to_prompt
+
+# Validate a skill directory
+problems = validate(Path("my-skill"))
+if problems:
+    print("Validation errors:", problems)
+
+# Read skill properties
+props = read_properties(Path("my-skill"))
+print(f"Skill: {props.name} - {props.description}")
+
+# Generate prompt for available skills
+prompt = to_prompt([Path("skill-a"), Path("skill-b")])
+print(prompt)
+```
+
+## Agent Prompt Integration
+
+Use `to-prompt` to generate the suggested `<available_skills>` XML block for your agent's system prompt. This format is recommended for Anthropic's models, but Skill Clients may choose to format it differently based on the model being used.
+
+```xml
+<available_skills>
+<skill>
+<name>
+my-skill
+</name>
+<description>
+What this skill does and when to use it
+</description>
+<location>
+/path/to/my-skill/SKILL.md
+</location>
+</skill>
+</available_skills>
+```
+
+The `<location>` element tells the agent where to find the full skill instructions.
+
+## License
+
+Apache 2.0
+
+
+================================================
+FILE: skills-ref/src/skills_ref/__init__.py
+================================================
+"""Reference library for Agent Skills."""
+
+from .errors import ParseError, SkillError, ValidationError
+from .models import SkillProperties
+from .parser import find_skill_md, read_properties
+from .prompt import to_prompt
+from .validator import validate
+
+__all__ = [
+    "SkillError",
+    "ParseError",
+    "ValidationError",
+    "SkillProperties",
+    "find_skill_md",
+    "validate",
+    "read_properties",
+    "to_prompt",
+]
+
+__version__ = "0.1.0"
+
+
+================================================
+FILE: skills-ref/src/skills_ref/cli.py
+================================================
+"""CLI for skills-ref library."""
+
+import json
+import sys
+from pathlib import Path
+
+import click
+
+from .errors import SkillError
+from .parser import read_properties
+from .prompt import to_prompt
+from .validator import validate
+
+
+def _is_skill_md_file(path: Path) -> bool:
+    """Check if path points directly to a SKILL.md or skill.md file."""
+    return path.is_file() and path.name.lower() == "skill.md"
+
+
+@click.group()
+@click.version_option()
+def main():
+    """Reference library for Agent Skills."""
+    pass
+
+
+@main.command("validate")
+@click.argument("skill_path", type=click.Path(exists=True, path_type=Path))
+def validate_cmd(skill_path: Path):
+    """Validate a skill directory.
+
+    Checks that the skill has a valid SKILL.md with proper frontmatter,
+    correct naming conventions, and required fields.
+
+    Exit codes:
+        0: Valid skill
+        1: Validation errors found
+    """
+    if _is_skill_md_file(skill_path):
+        skill_path = skill_path.parent
+
+    errors = validate(skill_path)
+
+    if errors:
+        click.echo(f"Validation failed for {skill_path}:", err=True)
+        for error in errors:
+            click.echo(f"  - {error}", err=True)
+        sys.exit(1)
+    else:
+        click.echo(f"Valid skill: {skill_path}")
+
+
+@main.command("read-properties")
+@click.argument("skill_path", type=click.Path(exists=True, path_type=Path))
+def read_properties_cmd(skill_path: Path):
+    """Read and print skill properties as JSON.
+
+    Parses the YAML frontmatter from SKILL.md and outputs the
+    properties as JSON.
+
+    Exit codes:
+        0: Success
+        1: Parse error
+    """
+    try:
+        if _is_skill_md_file(skill_path):
+            skill_path = skill_path.parent
+
+        props = read_properties(skill_path)
+        click.echo(json.dumps(props.to_dict(), indent=2))
+    except SkillError as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+
+
+@main.command("to-prompt")
+@click.argument(
+    "skill_paths", type=click.Path(exists=True, path_type=Path), nargs=-1, required=True
+)
+def to_prompt_cmd(skill_paths: tuple[Path, ...]):
+    """Generate <available_skills> XML for agent prompts.
+
+    Accepts one or more skill directories.
+
+    Exit codes:
+        0: Success
+        1: Error
+    """
+    try:
+        resolved_paths = []
+        for skill_path in skill_paths:
+            if _is_skill_md_file(skill_path):
+                resolved_paths.append(skill_path.parent)
+            else:
+                resolved_paths.append(skill_path)
+
+        output = to_prompt(resolved_paths)
+        click.echo(output)
+    except SkillError as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
+
+
+================================================
+FILE: skills-ref/src/skills_ref/errors.py
+================================================
+"""Skill-related exceptions."""
+
+
+class SkillError(Exception):
+    """Base exception for all skill-related errors."""
+
+    pass
+
+
+class ParseError(SkillError):
+    """Raised when SKILL.md parsing fails."""
+
+    pass
+
+
+class ValidationError(SkillError):
+    """Raised when skill properties are invalid.
+
+    Attributes:
+        errors: List of validation error messages (may contain just one)
+    """
+
+    def __init__(self, message: str, errors: list[str] | None = None):
+        super().__init__(message)
+        self.errors = errors if errors is not None else [message]
+
+
+================================================
+FILE: skills-ref/src/skills_ref/models.py
+================================================
+"""Data models for Agent Skills."""
+
+from dataclasses import dataclass, field
+from typing import Optional
+
+
+@dataclass
+class SkillProperties:
+    """Properties parsed from a skill's SKILL.md frontmatter.
+
+    Attributes:
+        name: Skill name in kebab-case (required)
+        description: What the skill does and when the model should use it (required)
+        license: License for the skill (optional)
+        compatibility: Compatibility information for the skill (optional)
+        allowed_tools: Tool patterns the skill requires (optional, experimental)
+        metadata: Key-value pairs for client-specific properties (defaults to
+            empty dict; omitted from to_dict() output when empty)
+    """
+
+    name: str
+    description: str
+    license: Optional[str] = None
+    compatibility: Optional[str] = None
+    allowed_tools: Optional[str] = None
+    metadata: dict[str, str] = field(default_factory=dict)
+
+    def to_dict(self) -> dict:
+        """Convert to dictionary, excluding None values."""
+        result = {"name": self.name, "description": self.description}
+        if self.license is not None:
+            result["license"] = self.license
+        if self.compatibility is not None:
+            result["compatibility"] = self.compatibility
+        if self.allowed_tools is not None:
+            result["allowed-tools"] = self.allowed_tools
+        if self.metadata:
+            result["metadata"] = self.metadata
+        return result
+
+
+================================================
+FILE: skills-ref/src/skills_ref/parser.py
+================================================
+"""YAML frontmatter parsing for SKILL.md files."""
+
+from pathlib import Path
+from typing import Optional
+
+import strictyaml
+
+from .errors import ParseError, ValidationError
+from .models import SkillProperties
+
+
+def find_skill_md(skill_dir: Path) -> Optional[Path]:
+    """Find the SKILL.md file in a skill directory.
+
+    Prefers SKILL.md (uppercase) but accepts skill.md (lowercase).
+
+    Args:
+        skill_dir: Path to the skill directory
+
+    Returns:
+        Path to the SKILL.md file, or None if not found
+    """
+    for name in ("SKILL.md", "skill.md"):
+        path = skill_dir / name
+        if path.exists():
+            return path
+    return None
+
+
+def parse_frontmatter(content: str) -> tuple[dict, str]:
+    """Parse YAML frontmatter from SKILL.md content.
+
+    Args:
+        content: Raw content of SKILL.md file
+
+    Returns:
+        Tuple of (metadata dict, markdown body)
+
+    Raises:
+        ParseError: If frontmatter is missing or invalid
+    """
+    if not content.startswith("---"):
+        raise ParseError("SKILL.md must start with YAML frontmatter (---)")
+
+    parts = content.split("---", 2)
+    if len(parts) < 3:
+        raise ParseError("SKILL.md frontmatter not properly closed with ---")
+
+    frontmatter_str = parts[1]
+    body = parts[2].strip()
+
+    try:
+        parsed = strictyaml.load(frontmatter_str)
+        metadata = parsed.data
+    except strictyaml.YAMLError as e:
+        raise ParseError(f"Invalid YAML in frontmatter: {e}")
+
+    if not isinstance(metadata, dict):
+        raise ParseError("SKILL.md frontmatter must be a YAML mapping")
+
+    if "metadata" in metadata and isinstance(metadata["metadata"], dict):
+        metadata["metadata"] = {str(k): str(v) for k, v in metadata["metadata"].items()}
+
+    return metadata, body
+
+
+def read_properties(skill_dir: Path) -> SkillProperties:
+    """Read skill properties from SKILL.md frontmatter.
+
+    This function parses the frontmatter and returns properties.
+    It does NOT perform full validation. Use validate() for that.
+
+    Args:
+        skill_dir: Path to the skill directory
+
+    Returns:
+        SkillProperties with parsed metadata
+
+    Raises:
+        ParseError: If SKILL.md is missing or has invalid YAML
+        ValidationError: If required fields (name, description) are missing
+    """
+    skill_dir = Path(skill_dir)
+    skill_md = find_skill_md(skill_dir)
+
+    if skill_md is None:
+        raise ParseError(f"SKILL.md not found in {skill_dir}")
+
+    content = skill_md.read_text()
+    metadata, _ = parse_frontmatter(content)
+
+    if "name" not in metadata:
+        raise ValidationError("Missing required field in frontmatter: name")
+    if "description" not in metadata:
+        raise ValidationError("Missing required field in frontmatter: description")
+
+    name = metadata["name"]
+    description = metadata["description"]
+
+    if not isinstance(name, str) or not name.strip():
+        raise ValidationError("Field 'name' must be a non-empty string")
+    if not isinstance(description, str) or not description.strip():
+        raise ValidationError("Field 'description' must be a non-empty string")
+
+    return SkillProperties(
+        name=name.strip(),
+        description=description.strip(),
+        license=metadata.get("license"),
+        compatibility=metadata.get("compatibility"),
+        allowed_tools=metadata.get("allowed-tools"),
+        metadata=metadata.get("metadata"),
+    )
+
+
+================================================
+FILE: skills-ref/src/skills_ref/prompt.py
+================================================
+"""Generate <available_skills> XML prompt block for agent system prompts."""
+
+import html
+from pathlib import Path
+
+from .parser import find_skill_md, read_properties
+
+
+def to_prompt(skill_dirs: list[Path]) -> str:
+    """Generate the <available_skills> XML block for inclusion in agent prompts.
+
+    This XML format is what Anthropic uses and recommends for Claude models.
+    Skill Clients may format skill information differently to suit their
+    models or preferences.
+
+    Args:
+        skill_dirs: List of paths to skill directories
+
+    Returns:
+        XML string with <available_skills> block containing each skill's
+        name, description, and location.
+
+    Example output:
+        <available_skills>
+        <skill>
+        <name>pdf-reader</name>
+        <description>Read and extract text from PDF files</description>
+        <location>/path/to/pdf-reader/SKILL.md</location>
+        </skill>
+        </available_skills>
+    """
+    if not skill_dirs:
+        return "<available_skills>\n</available_skills>"
+
+    lines = ["<available_skills>"]
+
+    for skill_dir in skill_dirs:
+        skill_dir = Path(skill_dir).resolve()
+        props = read_properties(skill_dir)
+
+        lines.append("<skill>")
+        lines.append("<name>")
+        lines.append(html.escape(props.name))
+        lines.append("</name>")
+        lines.append("<description>")
+        lines.append(html.escape(props.description))
+        lines.append("</description>")
+
+        skill_md_path = find_skill_md(skill_dir)
+        lines.append("<location>")
+        lines.append(str(skill_md_path))
+        lines.append("</location>")
+
+        lines.append("</skill>")
+
+    lines.append("</available_skills>")
+
+    return "\n".join(lines)
+
+
+================================================
+FILE: skills-ref/src/skills_ref/validator.py
+================================================
+"""Skill validation logic."""
+
+import unicodedata
+from pathlib import Path
+from typing import Optional
+
+from .errors import ParseError
+from .parser import find_skill_md, parse_frontmatter
+
+MAX_SKILL_NAME_LENGTH = 64
+MAX_DESCRIPTION_LENGTH = 1024
+MAX_COMPATIBILITY_LENGTH = 500
+
+# Allowed frontmatter fields per Agent Skills Spec
+ALLOWED_FIELDS = {
+    "name",
+    "description",
+    "license",
+    "allowed-tools",
+    "metadata",
+    "compatibility",
+}
+
+
+def _validate_name(name: str, skill_dir: Path) -> list[str]:
+    """Validate skill name format and directory match.
+
+    Skill names support i18n characters (Unicode letters) plus hyphens.
+    Names must be lowercase and cannot start/end with hyphens.
+    """
+    errors = []
+
+    if not name or not isinstance(name, str) or not name.strip():
+        errors.append("Field 'name' must be a non-empty string")
+        return errors
+
+    name = unicodedata.normalize("NFKC", name.strip())
+
+    if len(name) > MAX_SKILL_NAME_LENGTH:
+        errors.append(
+            f"Skill name '{name}' exceeds {MAX_SKILL_NAME_LENGTH} character limit "
+            f"({len(name)} chars)"
+        )
+
+    if name != name.lower():
+        errors.append(f"Skill name '{name}' must be lowercase")
+
+    if name.startswith("-") or name.endswith("-"):
+        errors.append("Skill name cannot start or end with a hyphen")
+
+    if "--" in name:
+        errors.append("Skill name cannot contain consecutive hyphens")
+
+    if not all(c.isalnum() or c == "-" for c in name):
+        errors.append(
+            f"Skill name '{name}' contains invalid characters. "
+            "Only letters, digits, and hyphens are allowed."
+        )
+
+    if skill_dir:
+        dir_name = unicodedata.normalize("NFKC", skill_dir.name)
+        if dir_name != name:
+            errors.append(
+                f"Directory name '{skill_dir.name}' must match skill name '{name}'"
+            )
+
+    return errors
+
+
+def _validate_description(description: str) -> list[str]:
+    """Validate description format."""
+    errors = []
+
+    if not description or not isinstance(description, str) or not description.strip():
+        errors.append("Field 'description' must be a non-empty string")
+        return errors
+
+    if len(description) > MAX_DESCRIPTION_LENGTH:
+        errors.append(
+            f"Description exceeds {MAX_DESCRIPTION_LENGTH} character limit "
+            f"({len(description)} chars)"
+        )
+
+    return errors
+
+
+def _validate_compatibility(compatibility: str) -> list[str]:
+    """Validate compatibility format."""
+    errors = []
+
+    if not isinstance(compatibility, str):
+        errors.append("Field 'compatibility' must be a string")
+        return errors
+
+    if len(compatibility) > MAX_COMPATIBILITY_LENGTH:
+        errors.append(
+            f"Compatibility exceeds {MAX_COMPATIBILITY_LENGTH} character limit "
+            f"({len(compatibility)} chars)"
+        )
+
+    return errors
+
+
+def _validate_metadata_fields(metadata: dict) -> list[str]:
+    """Validate that only allowed fields are present."""
+    errors = []
+
+    extra_fields = set(metadata.keys()) - ALLOWED_FIELDS
+    if extra_fields:
+        errors.append(
+            f"Unexpected fields in frontmatter: {', '.join(sorted(extra_fields))}. "
+            f"Only {sorted(ALLOWED_FIELDS)} are allowed."
+        )
+
+    return errors
+
+
+def validate_metadata(metadata: dict, skill_dir: Optional[Path] = None) -> list[str]:
+    """Validate parsed skill metadata.
+
+    This is the core validation function that works on already-parsed metadata,
+    avoiding duplicate file I/O when called from the parser.
+
+    Args:
+        metadata: Parsed YAML frontmatter dictionary
+        skill_dir: Optional path to skill directory (for name-directory match check)
+
+    Returns:
+        List of validation error messages. Empty list means valid.
+    """
+    errors = []
+    errors.extend(_validate_metadata_fields(metadata))
+
+    if "name" not in metadata:
+        errors.append("Missing required field in frontmatter: name")
+    else:
+        errors.extend(_validate_name(metadata["name"], skill_dir))
+
+    if "description" not in metadata:
+        errors.append("Missing required field in frontmatter: description")
+    else:
+        errors.extend(_validate_description(metadata["description"]))
+
+    if "compatibility" in metadata:
+        errors.extend(_validate_compatibility(metadata["compatibility"]))
+
+    return errors
+
+
+def validate(skill_dir: Path) -> list[str]:
+    """Validate a skill directory.
+
+    Args:
+        skill_dir: Path to the skill directory
+
+    Returns:
+        List of validation error messages. Empty list means valid.
+    """
+    skill_dir = Path(skill_dir)
+
+    if not skill_dir.exists():
+        return [f"Path does not exist: {skill_dir}"]
+
+    if not skill_dir.is_dir():
+        return [f"Not a directory: {skill_dir}"]
+
+    skill_md = find_skill_md(skill_dir)
+    if skill_md is None:
+        return ["Missing required file: SKILL.md"]
+
+    try:
+        content = skill_md.read_text()
+        metadata, _ = parse_frontmatter(content)
+    except ParseError as e:
+        return [str(e)]
+
+    return validate_metadata(metadata, skill_dir)
+
+
+================================================
+FILE: skills-ref/tests/__init__.py
+================================================
+"""Tests for skills-ref library."""
+
+
+================================================
+FILE: skills-ref/tests/test_parser.py
+================================================
+"""Tests for parser module."""
+
+import pytest
+
+from skills_ref.parser import (
+    ParseError,
+    ValidationError,
+    find_skill_md,
+    parse_frontmatter,
+    read_properties,
+)
+
+
+def test_valid_frontmatter():
+    content = """---
+name: my-skill
+description: A test skill
+---
+# My Skill
+
+Instructions here.
+"""
+    metadata, body = parse_frontmatter(content)
+    assert metadata["name"] == "my-skill"
+    assert metadata["description"] == "A test skill"
+    assert "# My Skill" in body
+
+
+def test_missing_frontmatter():
+    content = "# No frontmatter here"
+    with pytest.raises(ParseError, match="must start with YAML frontmatter"):
+        parse_frontmatter(content)
+
+
+def test_unclosed_frontmatter():
+    content = """---
+name: my-skill
+description: A test skill
+"""
+    with pytest.raises(ParseError, match="not properly closed"):
+        parse_frontmatter(content)
+
+
+def test_invalid_yaml():
+    content = """---
+name: [invalid
+description: broken
+---
+Body here
+"""
+    with pytest.raises(ParseError, match="Invalid YAML"):
+        parse_frontmatter(content)
+
+
+def test_non_dict_frontmatter():
+    content = """---
+- just
+- a
+- list
+---
+Body
+"""
+    with pytest.raises(ParseError, match="must be a YAML mapping"):
+        parse_frontmatter(content)
+
+
+def test_read_valid_skill(tmp_path):
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: my-skill
+description: A test skill
+license: MIT
+---
+# My Skill
+""")
+    props = read_properties(skill_dir)
+    assert props.name == "my-skill"
+    assert props.description == "A test skill"
+    assert props.license == "MIT"
+
+
+def test_read_with_metadata(tmp_path):
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: my-skill
+description: A test skill
+metadata:
+  author: Test Author
+  version: 1.0
+---
+Body
+""")
+    props = read_properties(skill_dir)
+    assert props.metadata == {"author": "Test Author", "version": "1.0"}
+
+
+def test_missing_skill_md(tmp_path):
+    with pytest.raises(ParseError, match="SKILL.md not found"):
+        read_properties(tmp_path)
+
+
+def test_missing_name(tmp_path):
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+description: A test skill
+---
+Body
+""")
+    with pytest.raises(ValidationError, match="Missing required field.*name"):
+        read_properties(skill_dir)
+
+
+def test_missing_description(tmp_path):
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: my-skill
+---
+Body
+""")
+    with pytest.raises(ValidationError, match="Missing required field.*description"):
+        read_properties(skill_dir)
+
+
+def test_find_skill_md_prefers_uppercase(tmp_path):
+    """SKILL.md should be preferred over skill.md when both exist."""
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("uppercase")
+    (skill_dir / "skill.md").write_text("lowercase")
+    result = find_skill_md(skill_dir)
+    assert result is not None
+    assert result.name == "SKILL.md"
+
+
+def test_find_skill_md_accepts_lowercase(tmp_path):
+    """skill.md should be accepted when SKILL.md doesn't exist."""
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "skill.md").write_text("lowercase")
+    result = find_skill_md(skill_dir)
+    assert result is not None
+    # Check case-insensitively since some filesystems are case-insensitive
+    assert result.name.lower() == "skill.md"
+
+
+def test_find_skill_md_returns_none_when_missing(tmp_path):
+    """find_skill_md should return None when no skill.md exists."""
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    result = find_skill_md(skill_dir)
+    assert result is None
+
+
+def test_read_properties_with_lowercase_skill_md(tmp_path):
+    """read_properties should work with lowercase skill.md."""
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "skill.md").write_text("""---
+name: my-skill
+description: A test skill
+---
+# My Skill
+""")
+    props = read_properties(skill_dir)
+    assert props.name == "my-skill"
+    assert props.description == "A test skill"
+
+
+def test_read_with_allowed_tools(tmp_path):
+    """allowed-tools should be parsed into SkillProperties."""
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: my-skill
+description: A test skill
+allowed-tools: Bash(jq:*) Bash(git:*)
+---
+Body
+""")
+    props = read_properties(skill_dir)
+    assert props.allowed_tools == "Bash(jq:*) Bash(git:*)"
+    # Verify to_dict outputs as "allowed-tools" (hyphenated)
+    d = props.to_dict()
+    assert d["allowed-tools"] == "Bash(jq:*) Bash(git:*)"
+
+
+================================================
+FILE: skills-ref/tests/test_prompt.py
+================================================
+"""Tests for prompt module."""
+
+from skills_ref.prompt import to_prompt
+
+
+def test_empty_list():
+    result = to_prompt([])
+    assert result == "<available_skills>\n</available_skills>"
+
+
+def test_single_skill(tmp_path):
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: my-skill
+description: A test skill
+---
+Body
+""")
+    result = to_prompt([skill_dir])
+    assert "<available_skills>" in result
+    assert "</available_skills>" in result
+    assert "<name>\nmy-skill\n</name>" in result
+    assert "<description>\nA test skill\n</description>" in result
+    assert "<location>" in result
+    assert "SKILL.md" in result
+
+
+def test_multiple_skills(tmp_path):
+    skill_a = tmp_path / "skill-a"
+    skill_a.mkdir()
+    (skill_a / "SKILL.md").write_text("""---
+name: skill-a
+description: First skill
+---
+Body
+""")
+
+    skill_b = tmp_path / "skill-b"
+    skill_b.mkdir()
+    (skill_b / "SKILL.md").write_text("""---
+name: skill-b
+description: Second skill
+---
+Body
+""")
+
+    result = to_prompt([skill_a, skill_b])
+    assert result.count("<skill>") == 2
+    assert result.count("</skill>") == 2
+    assert "skill-a" in result
+    assert "skill-b" in result
+
+
+def test_special_characters_escaped(tmp_path):
+    """XML special characters in description are escaped."""
+    skill_dir = tmp_path / "special-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: special-skill
+description: Use <foo> & <bar> tags
+---
+Body
+""")
+    result = to_prompt([skill_dir])
+    assert "&lt;foo&gt;" in result
+    assert "&amp;" in result
+    assert "&lt;bar&gt;" in result
+    assert "<foo>" not in result
+    assert "<bar>" not in result
+
+
+================================================
+FILE: skills-ref/tests/test_validator.py
+================================================
+"""Tests for validator module."""
+
+from skills_ref.validator import validate
+
+
+def test_valid_skill(tmp_path):
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: my-skill
+description: A test skill
+---
+# My Skill
+""")
+    errors = validate(skill_dir)
+    assert errors == []
+
+
+def test_nonexistent_path(tmp_path):
+    errors = validate(tmp_path / "nonexistent")
+    assert len(errors) == 1
+    assert "does not exist" in errors[0]
+
+
+def test_not_a_directory(tmp_path):
+    file_path = tmp_path / "file.txt"
+    file_path.write_text("test")
+    errors = validate(file_path)
+    assert len(errors) == 1
+    assert "Not a directory" in errors[0]
+
+
+def test_missing_skill_md(tmp_path):
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    errors = validate(skill_dir)
+    assert len(errors) == 1
+    assert "Missing required file: SKILL.md" in errors[0]
+
+
+def test_invalid_name_uppercase(tmp_path):
+    skill_dir = tmp_path / "MySkill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: MySkill
+description: A test skill
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert any("lowercase" in e for e in errors)
+
+
+def test_name_too_long(tmp_path):
+    long_name = "a" * 70  # Exceeds 64 char limit
+    skill_dir = tmp_path / long_name
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text(f"""---
+name: {long_name}
+description: A test skill
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert any("exceeds" in e and "character limit" in e for e in errors)
+
+
+def test_name_leading_hyphen(tmp_path):
+    skill_dir = tmp_path / "-my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: -my-skill
+description: A test skill
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert any("cannot start or end with a hyphen" in e for e in errors)
+
+
+def test_name_consecutive_hyphens(tmp_path):
+    skill_dir = tmp_path / "my--skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: my--skill
+description: A test skill
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert any("consecutive hyphens" in e for e in errors)
+
+
+def test_name_invalid_characters(tmp_path):
+    skill_dir = tmp_path / "my_skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: my_skill
+description: A test skill
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert any("invalid characters" in e for e in errors)
+
+
+def test_name_directory_mismatch(tmp_path):
+    skill_dir = tmp_path / "wrong-name"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: correct-name
+description: A test skill
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert any("must match skill name" in e for e in errors)
+
+
+def test_unexpected_fields(tmp_path):
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: my-skill
+description: A test skill
+unknown_field: should not be here
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert any("Unexpected fields" in e for e in errors)
+
+
+def test_valid_with_all_fields(tmp_path):
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: my-skill
+description: A test skill
+license: MIT
+metadata:
+  author: Test
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert errors == []
+
+
+def test_allowed_tools_accepted(tmp_path):
+    """allowed-tools is accepted (experimental feature)."""
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: my-skill
+description: A test skill
+allowed-tools: Bash(jq:*) Bash(git:*)
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert errors == []
+
+
+def test_i18n_chinese_name(tmp_path):
+    """Chinese characters are allowed in skill names."""
+    skill_dir = tmp_path / "技能"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: 技能
+description: A skill with Chinese name
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert errors == []
+
+
+def test_i18n_russian_name_with_hyphens(tmp_path):
+    """Russian names with hyphens are allowed."""
+    skill_dir = tmp_path / "мой-навык"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: мой-навык
+description: A skill with Russian name
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert errors == []
+
+
+def test_i18n_russian_lowercase_valid(tmp_path):
+    """Russian lowercase names should be accepted."""
+    skill_dir = tmp_path / "навык"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: навык
+description: A skill with Russian lowercase name
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert errors == []
+
+
+def test_i18n_russian_uppercase_rejected(tmp_path):
+    """Russian uppercase names should be rejected."""
+    skill_dir = tmp_path / "НАВЫК"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: НАВЫК
+description: A skill with Russian uppercase name
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert any("lowercase" in e for e in errors)
+
+
+def test_description_too_long(tmp_path):
+    """Description exceeding 1024 chars should fail."""
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    long_desc = "x" * 1100
+    (skill_dir / "SKILL.md").write_text(f"""---
+name: my-skill
+description: {long_desc}
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert any("exceeds" in e and "1024" in e for e in errors)
+
+
+def test_valid_compatibility(tmp_path):
+    """Valid compatibility field should be accepted."""
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text("""---
+name: my-skill
+description: A test skill
+compatibility: Requires Python 3.11+
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert errors == []
+
+
+def test_compatibility_too_long(tmp_path):
+    """Compatibility exceeding 500 chars should fail."""
+    skill_dir = tmp_path / "my-skill"
+    skill_dir.mkdir()
+    long_compat = "x" * 550
+    (skill_dir / "SKILL.md").write_text(f"""---
+name: my-skill
+description: A test skill
+compatibility: {long_compat}
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert any("exceeds" in e and "500" in e for e in errors)
+
+
+def test_nfkc_normalization(tmp_path):
+    """Skill names are NFKC normalized before validation.
+
+    The name 'café' can be represented two ways:
+    - Precomposed: 'café' (4 chars, 'é' is U+00E9)
+    - Decomposed: 'café' (5 chars, 'e' + combining acute U+0301)
+
+    NFKC normalizes both to the precomposed form.
+    """
+    # Use decomposed form: 'cafe' + combining acute accent (U+0301)
+    decomposed_name = "cafe\u0301"  # 'café' with combining accent
+    composed_name = "café"  # precomposed form
+
+    # Directory uses composed form, SKILL.md uses decomposed - should match after normalization
+    skill_dir = tmp_path / composed_name
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text(f"""---
+name: {decomposed_name}
+description: A test skill
+---
+Body
+""")
+    errors = validate(skill_dir)
+    assert errors == [], f"Expected no errors, got: {errors}"
