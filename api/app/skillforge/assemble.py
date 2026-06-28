@@ -271,7 +271,6 @@ def _render_skill_md(
         "---",
         f"name: {name}",
         f'description: "{description}"',
-        "version: 1.0.0",
         "---",
         "",
         f"# {meta.owner}/{meta.repo} — Code Skill",

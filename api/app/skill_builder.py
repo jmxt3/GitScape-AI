@@ -70,5 +70,9 @@ def detect_primary_languages(files: List[Path], top_n: int = 3) -> List[str]:
 def generate_skill_name(owner: str, repo: str) -> str:
     """
     Generate a canonical skill name: lowercase-with-hyphens, per AgentSkills standard.
+
+    The spec only allows [letters, digits, hyphens] — underscores (common in GitHub
+    owner/repo names) are replaced with hyphens to pass `skills-ref validate`.
     """
-    return f"{owner.lower()}-{repo.lower()}"
+    name = f"{owner.lower()}-{repo.lower()}"
+    return name.replace("_", "-")
