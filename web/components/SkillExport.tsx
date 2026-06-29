@@ -1,8 +1,8 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
-import { ScanReport, ScanStatus, SkillManifest, SkillReferences, SkillTier, SkillType } from "../types";
+import { ScanReport, ScanStatus, SkillManifest, SkillReferences } from "../types";
 
 interface SkillExportProps {
   skillMd: string;
@@ -153,7 +153,7 @@ const preprocessMarkdown = (content: string): { frontmatter: { name: string; des
   return { frontmatter, content: processed };
 };
 
-// ─── Main component ─────────────────────────────────────────────────────────
+// ─── Main component ─────────────────────────────────────────────────────────────────────────
 
 export const SkillExport: React.FC<SkillExportProps> = ({
   skillMd,
@@ -162,23 +162,15 @@ export const SkillExport: React.FC<SkillExportProps> = ({
   references,
   repoUrl,
   repoNameForFilename,
+  githubToken: _githubToken,
   digest,
 }) => {
-  const [tier, setTier] = useState<SkillTier>("standard");
-  const [skillType, setSkillType] = useState<SkillType>("code");
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
   const [warnAccepted, setWarnAccepted] = useState(false);
 
-  // HD overrides (set after a successful HD generation)
-  const [hdLoading, setHdLoading] = useState(false);
-  const [hdError, setHdError] = useState<string | null>(null);
-  const [hdSkillMd, setHdSkillMd] = useState<string | null>(null);
-  const [hdReferences, setHdReferences] = useState<SkillReferences | null>(null);
-  const [hdScanReport, setHdScanReport] = useState<ScanReport | null>(null);
-
-  // Engineering Skill (framework) state
+  // Engineering Skill state
   const [frameworkLoading, setFrameworkLoading] = useState(false);
   const [frameworkError, setFrameworkError] = useState<string | null>(null);
   const [frameworkSkillMd, setFrameworkSkillMd] = useState<string | null>(null);
@@ -188,11 +180,10 @@ export const SkillExport: React.FC<SkillExportProps> = ({
   // A report attached when a download is rejected by the server gate (422)
   const [blockedReport, setBlockedReport] = useState<ScanReport | null>(null);
 
-  const usingHd = tier === "hd" && hdSkillMd !== null;
-  const usingFramework = skillType === "framework" && frameworkSkillMd !== null;
-  const displaySkillMd = usingFramework ? frameworkSkillMd! : usingHd ? hdSkillMd! : skillMd;
-  const displayReferences = (usingFramework ? frameworkReferences : usingHd ? hdReferences : references) ?? {};
-  const displayScan = blockedReport ?? (usingFramework ? frameworkScanReport : usingHd ? hdScanReport : scanReport);
+  // Engineering Skill is always the display — falls back to the initial Code Skill preview while generating
+  const displaySkillMd = frameworkSkillMd ?? skillMd;
+  const displayReferences = (frameworkReferences ?? references) ?? {};
+  const displayScan = blockedReport ?? frameworkScanReport ?? scanReport;
 
   const status: ScanStatus | null = displayScan?.status ?? null;
   const showAcceptCheckbox = status === "WARN" || status === "FAIL";
@@ -270,10 +261,11 @@ export const SkillExport: React.FC<SkillExportProps> = ({
       languages: manifestJson?.metadata?.primary_languages ?? [],
       files_analyzed: manifestJson?.metadata?.files_analyzed ?? 0,
       bypass_scan_gate: status === "FAIL" && warnAccepted,
+      skill_type: "framework",
     };
   }, [repoUrl, repoNameForFilename, digest, manifestJson, status, warnAccepted]);
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
+  // ── Handlers ──────────────────────────────────────────────────────────────────────────────
 
   const handleDownloadZip = useCallback(async () => {
     if (!repoUrl || !digest || needsAccept) return;
@@ -308,31 +300,6 @@ export const SkillExport: React.FC<SkillExportProps> = ({
     }
   }, [repoUrl, repoNameForFilename, digest, needsAccept, requestBody]);
 
-  const handleGenerateHd = useCallback(async () => {
-    if (!digest) return;
-    setHdLoading(true);
-    setHdError(null);
-    try {
-      const response = await fetch(`${apiBase()}/skill/hd-prose`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody()),
-      });
-      if (response.status === 503) throw new Error("HD mode isn't configured on this server.");
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      setHdSkillMd(data.skill_md ?? "");
-      setHdReferences(data.references ?? {});
-      setHdScanReport(data.scan_report ?? null);
-      setWarnAccepted(false);
-      setBlockedReport(null);
-    } catch (err: any) {
-      setHdError(err.message ?? "HD generation failed.");
-    } finally {
-      setHdLoading(false);
-    }
-  }, [digest, requestBody]);
-
   const handleGenerateFramework = useCallback(async () => {
     if (!digest) return;
     setFrameworkLoading(true);
@@ -343,7 +310,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...requestBody(), skill_type: "framework" }),
       });
-      if (response.status === 503) throw new Error("Engineering Skill mode requires the Gemini API key to be configured on this server.");
+      if (response.status === 503) throw new Error("Engineering Skill requires the Gemini API key on this server.");
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       setFrameworkSkillMd(data.skill_md ?? "");
@@ -358,6 +325,14 @@ export const SkillExport: React.FC<SkillExportProps> = ({
     }
   }, [digest, requestBody]);
 
+  // Auto-generate Engineering Skill as soon as a digest is available
+  useEffect(() => {
+    if (digest && !frameworkSkillMd && !frameworkLoading) {
+      handleGenerateFramework();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [digest]);
+
   const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(selectedContent);
@@ -366,19 +341,6 @@ export const SkillExport: React.FC<SkillExportProps> = ({
     } catch (_) { /* clipboard unavailable */ }
   }, [selectedContent]);
 
-  const switchTier = useCallback((next: SkillTier) => {
-    setTier(next);
-    setSelectedFile("SKILL.md");
-    setBlockedReport(null);
-    setWarnAccepted(false);
-  }, []);
-
-  const switchSkillType = useCallback((next: SkillType) => {
-    setSkillType(next);
-    setSelectedFile("SKILL.md");
-    setBlockedReport(null);
-    setWarnAccepted(false);
-  }, []);
 
   // ── Render ──────────────────────────────────────────────────────────────────
 
@@ -398,93 +360,53 @@ export const SkillExport: React.FC<SkillExportProps> = ({
         <span className="bg-slate-700/50 text-slate-400 border border-slate-600/50 px-2.5 py-1 rounded-full font-mono text-[10px] tracking-wide">agentskills.io v1.0</span>
       </div>
 
-      {/* Skill Type toggle */}
-      <div className="flex items-center gap-2">
-        <div className="inline-flex rounded-lg border border-slate-600 overflow-hidden">
-          <button
-            id="skill-type-code-btn"
-            onClick={() => switchSkillType("code")}
-            className={`px-3 py-1.5 text-xs font-semibold transition-colors ${skillType === "code" ? "bg-slate-500 text-white" : "bg-slate-800 text-slate-300 hover:bg-slate-700"}`}
-          >
-            Code Skill
-          </button>
-          <button
-            id="skill-type-framework-btn"
-            onClick={() => switchSkillType("framework")}
-            className={`px-3 py-1.5 text-xs font-semibold transition-colors ${skillType === "framework" ? "bg-violet-600 text-white" : "bg-slate-800 text-slate-300 hover:bg-slate-700"}`}
-          >
-            ⚡ Engineering Skill
-          </button>
+      {/* Engineering Skill header + regenerate button */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-violet-600/20 border border-violet-500/40 text-violet-300">
+            <span>⚡</span> Engineering Skill
+          </span>
+          <span className="text-[11px] text-slate-500">Teaches agents how to act in this repo.</span>
         </div>
-        <span className="text-[11px] text-slate-500">
-          {skillType === "code" ? "API reference for this codebase." : "Workflow skill — teaches agents how to act in this repo."}
-        </span>
+        <button
+          id="skill-generate-framework-btn"
+          onClick={handleGenerateFramework}
+          disabled={frameworkLoading}
+          className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-violet-700/40 hover:bg-violet-600/60 border border-violet-600/40 disabled:opacity-50 text-violet-300 hover:text-violet-200 transition-colors"
+        >
+          {frameworkLoading ? (
+            <><svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Generating…</>
+          ) : frameworkSkillMd ? "Regenerate" : "Generate"}
+        </button>
       </div>
 
-      {/* Tier toggle (Code Skill only) */}
-      {skillType === "code" && (
-        <div className="flex items-center gap-2">
-          <div className="inline-flex rounded-lg border border-slate-600 overflow-hidden">
-            <button
-              onClick={() => switchTier("standard")}
-              className={`px-3 py-1.5 text-xs font-semibold transition-colors ${tier === "standard" ? "bg-amber-500 text-black" : "bg-slate-800 text-slate-300 hover:bg-slate-700"}`}
-            >
-              Standard
-            </button>
-            <button
-              onClick={() => switchTier("hd")}
-              className={`px-3 py-1.5 text-xs font-semibold transition-colors ${tier === "hd" ? "bg-violet-500 text-white" : "bg-slate-800 text-slate-300 hover:bg-slate-700"}`}
-            >
-              HD ✨
-            </button>
+      {/* First-time generation loading state */}
+      {frameworkLoading && !frameworkSkillMd && (
+        <div className="rounded-xl border border-violet-700/30 bg-violet-950/20 px-4 py-5 flex items-center gap-3">
+          <svg className="w-4 h-4 animate-spin text-violet-400 shrink-0" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+          <div>
+            <p className="text-xs font-semibold text-violet-300">Generating Engineering Skill…</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">Gemini is analysing your repository and producing all 6 canonical sections.</p>
           </div>
-          <span className="text-[11px] text-slate-500">
-            {tier === "standard"
-              ? "Deterministic — instant, no model."
-              : "LLM-enhanced prose via Gemini (server-side)."}
-          </span>
-          {tier === "hd" && (
-            <button
-              onClick={handleGenerateHd}
-              disabled={hdLoading}
-              className="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white transition-colors"
-            >
-              {hdLoading ? (
-                <><svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Generating…</>
-              ) : usingHd ? "Regenerate HD prose" : "Generate HD prose"}
-            </button>
-          )}
         </div>
       )}
-      {hdError && <p className="text-xs text-amber-400 bg-amber-900/20 border border-amber-700/40 px-3 py-2 rounded-lg">{hdError}</p>}
 
-      {/* Engineering Skill generation panel */}
-      {skillType === "framework" && (
-        <div className="rounded-xl border border-violet-700/40 bg-violet-950/30 px-4 py-3 flex flex-col gap-3">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold text-violet-300 flex items-center gap-1.5">
-                <span>⚡</span> Production-Grade Engineering Skill
-              </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                Generates all 6 canonical sections: Overview · When to Use · Core Process · Common Rationalizations · Red Flags · Verification.
-                Requires Gemini API (HD tier).
-              </p>
-            </div>
-            <button
-              id="skill-generate-framework-btn"
-              onClick={handleGenerateFramework}
-              disabled={frameworkLoading}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white transition-colors"
-            >
-              {frameworkLoading ? (
-                <><svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Generating…</>
-              ) : frameworkSkillMd ? "Regenerate" : "Generate Engineering Skill"}
-            </button>
-          </div>
-          {frameworkError && <p className="text-xs text-amber-400 bg-amber-900/20 border border-amber-700/40 px-3 py-2 rounded-lg">{frameworkError}</p>}
+      {/* Error states */}
+      {frameworkError && !frameworkSkillMd && (
+        <div className="rounded-xl border border-amber-700/40 bg-amber-900/10 px-4 py-3 flex items-center justify-between gap-3">
+          <p className="text-xs text-amber-400">{frameworkError}</p>
+          <button
+            onClick={handleGenerateFramework}
+            className="shrink-0 px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600/20 hover:bg-amber-600/30 border border-amber-600/40 text-amber-300 transition-colors"
+          >
+            Retry
+          </button>
         </div>
       )}
+      {frameworkError && frameworkSkillMd && (
+        <p className="text-xs text-amber-400 bg-amber-900/20 border border-amber-700/40 px-3 py-2 rounded-lg">{frameworkError}</p>
+      )}
+
 
       {/* Scan badge */}
       {displayScan && <ScanBadge report={displayScan} />}

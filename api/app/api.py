@@ -159,7 +159,7 @@ def _build_from_digest(body: "SkillZipRequest", repo_url: str, *, hd: bool = Fal
         key += ":hd"
     if skill_type == "framework":
         key += ":framework"
-    pkg = None if hd or skill_type == "framework" else skillforge.skill_cache.get(key)
+    pkg = None if hd else skillforge.skill_cache.get(key)
     if pkg is not None:
         return pkg
 

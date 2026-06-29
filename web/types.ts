@@ -113,8 +113,7 @@ export interface ScanReport {
 // references/*.md content, keyed by package-relative path (e.g. "references/api.md")
 export type SkillReferences = Record<string, string>;
 
-export type SkillTier = "standard" | "hd";
-export type SkillType = "code" | "framework";
+
 
 // Framework Engineering Skill — 6-section canonical anatomy returned by /skill/framework
 export interface FrameworkProcessStep {

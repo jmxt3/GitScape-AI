@@ -128,7 +128,7 @@ APP_VERSION="0.1.0"
 # HD skill prose (optional). Server-side Gemini key — never exposed to the browser.
 # Leave blank to disable HD mode; the deterministic Standard tier needs no key.
 GEMINI_API_KEY=""
-HD_MODEL="gemini-2.5-flash"
+HD_MODEL="gemini-3.1-flash-lite"
 ```
 
 > **HD mode** is optional. With no `GEMINI_API_KEY`, `POST /skill/hd-prose` returns `503`

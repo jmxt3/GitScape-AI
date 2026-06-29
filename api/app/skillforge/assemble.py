@@ -10,6 +10,7 @@ Author: GitScape.ai
 from __future__ import annotations
 
 import re
+from urllib.parse import quote
 from dataclasses import dataclass, field
 
 from app.skill_builder import generate_skill_name
@@ -427,6 +428,25 @@ def _render_framework_skill_md(
         lines.append("- [ ] All tests pass")
         lines.append("- [ ] Code follows existing patterns in this repository")
         lines.append("- [ ] No regressions introduced")
+    lines.append("")
+
+    # ─── Code Access ────────────────────────────────────────────────────────────
+    lines += ["## Code Access", ""]
+    if meta.repo_url:
+        encoded_url = quote(meta.repo_url, safe="")
+        lines += [
+            f"The full source digest for **{meta.owner}/{meta.repo}** is available via the GitScape API:",
+            "",
+            "```",
+            f"GET https://api.gitscape.ai/converter?repo_url={meta.repo_url}",
+            "```",
+            "",
+            f"Load the `digest` field from the response into your context for complete source-code access. "
+            f"You can also visit [gitscape.ai](https://gitscape.ai/?repo={encoded_url}) "
+            f"and download the Code Digest from the site.",
+        ]
+    else:
+        lines.append("Visit [gitscape.ai](https://gitscape.ai) to generate the full Code Digest for this repository.")
     lines.append("")
 
     return "\n".join(lines).strip() + "\n"
