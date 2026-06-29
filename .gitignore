@@ -32,3 +32,5 @@ generate_key.py
 
 .llms/*
 /.llms
+
+/docs
