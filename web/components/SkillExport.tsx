@@ -187,8 +187,21 @@ export const SkillExport: React.FC<SkillExportProps> = ({
   const displayScan = blockedReport ?? frameworkScanReport ?? scanReport;
   const displayManifest = frameworkManifest ?? manifestJson;
 
-  const summaryTitle = displayManifest?.metadata?.summary_title;
-  const summaryBullets = displayManifest?.metadata?.summary_bullets;
+  const summaryTitle =
+    displayManifest?.metadata?.summary_title ||
+    displayManifest?.description ||
+    null;
+  const summaryBullets: string[] =
+    displayManifest?.metadata?.summary_bullets?.length
+      ? displayManifest.metadata.summary_bullets
+      : displayManifest
+      ? [
+          `Specialist guidelines for working in the ${displayManifest.display_name || displayManifest.name} codebase.`,
+          `Covers ${displayManifest.metadata?.files_analyzed ?? "—"} source files across ${displayManifest.metadata?.primary_languages?.join(", ") || "multiple languages"}.`,
+          "Adherence to repository structure, architecture, and testing patterns.",
+          "Follow established conventions before modifying any core logic.",
+        ]
+      : [];
 
   const status: ScanStatus | null = displayScan?.status ?? null;
   const showAcceptCheckbox = status === "WARN" || status === "FAIL";
@@ -380,7 +393,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
       </div>
 
       {/* Summary Box — only after Engineering Skill is fully generated */}
-      {frameworkSkillMd && (summaryTitle || (summaryBullets && summaryBullets.length > 0)) && (
+      {frameworkSkillMd && (
         <div className="rounded-xl border border-slate-700/50 bg-slate-900/50 p-5 flex flex-col gap-3">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">SUMMARY</span>
           {summaryTitle && (
@@ -388,7 +401,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
               {summaryTitle}
             </p>
           )}
-          {summaryBullets && summaryBullets.length > 0 && (
+          {summaryBullets.length > 0 && (
             <ul className="list-disc pl-4 space-y-2 text-xs text-slate-400">
               {summaryBullets.map((bullet, idx) => (
                 <li key={idx} className="leading-relaxed pl-1 marker:text-violet-500">
