@@ -32,7 +32,7 @@ function Deploy-Service {
 
     Push-Location $ServicePath
     try {
-        gcloud builds submit --config cloudbuild.yaml .
+        gcloud beta builds submit --config cloudbuild.yaml .
         if ($LASTEXITCODE -ne 0) {
             Write-Host "[ERROR] Cloud Build failed for $ServiceName (exit code $LASTEXITCODE)" -ForegroundColor Red
             exit $LASTEXITCODE

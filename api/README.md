@@ -244,7 +244,7 @@ docker stop git_scape_api_local && docker rm git_scape_api_local && docker rmi g
 gcloud services enable run.googleapis.com artifactregistry.googleapis.com
 
 # 2. Build & push via Cloud Build
-gcloud builds submit \
+gcloud beta builds submit \
   --tag REGION-docker.pkg.dev/PROJECT_ID/REPO/git_scape_api:latest .
 
 # 3. Deploy

@@ -59,5 +59,7 @@ images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/gitscape-web:$_IMAGE_TAG'
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/gitscape-web:latest'
 
+# Options for Cloud Build execution
 options:
+  # CLOUD_LOGGING_ONLY requires using 'gcloud beta builds submit' to stream logs locally.
   logging: CLOUD_LOGGING_ONLY

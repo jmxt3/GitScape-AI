@@ -156,7 +156,7 @@ docker run -d -p 8080:8080 --name git_scape_web_local git_scape_web
 
 ```bash
 # Build & push via Cloud Build
-gcloud builds submit --tag REGION-docker.pkg.dev/PROJECT_ID/REPO/git_scape_web:latest .
+gcloud beta builds submit --tag REGION-docker.pkg.dev/PROJECT_ID/REPO/git_scape_web:latest .
 
 # Deploy
 gcloud run deploy git-scape-web \
