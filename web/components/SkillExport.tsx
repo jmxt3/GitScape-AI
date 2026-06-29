@@ -92,10 +92,10 @@ const ScanBadge: React.FC<{ report: ScanReport }> = ({ report }) => {
 
 const preprocessMarkdown = (content: string): { frontmatter: { name: string; description: string } | null; content: string } => {
   if (!content) return { frontmatter: null, content: "" };
-  
+
   let processed = content;
   let frontmatter: { name: string; description: string } | null = null;
-  
+
   // 1. Handle YAML Frontmatter
   const frontmatterRegex = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/;
   const match = processed.match(frontmatterRegex);
@@ -104,11 +104,11 @@ const preprocessMarkdown = (content: string): { frontmatter: { name: string; des
     const result: Record<string, string> = {};
     const lines = yamlStr.split(/\r?\n/);
     let currentKey = "";
-    
+
     for (const line of lines) {
       const trimmed = line.trim();
       if (!trimmed) continue;
-      
+
       const keyValMatch = trimmed.match(/^([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
       if (keyValMatch) {
         currentKey = keyValMatch[1];
@@ -125,10 +125,10 @@ const preprocessMarkdown = (content: string): { frontmatter: { name: string; des
         result[currentKey] = (result[currentKey] || "") + " " + val;
       }
     }
-    
+
     const name = result['name'] || '';
     const description = result['description'] || '';
-    
+
     if (name || description) {
       frontmatter = { name, description };
       processed = processed.replace(frontmatterRegex, "");
@@ -176,6 +176,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
   const [frameworkSkillMd, setFrameworkSkillMd] = useState<string | null>(null);
   const [frameworkReferences, setFrameworkReferences] = useState<SkillReferences | null>(null);
   const [frameworkScanReport, setFrameworkScanReport] = useState<ScanReport | null>(null);
+  const [frameworkManifest, setFrameworkManifest] = useState<SkillManifest | null>(null);
 
   // A report attached when a download is rejected by the server gate (422)
   const [blockedReport, setBlockedReport] = useState<ScanReport | null>(null);
@@ -184,6 +185,10 @@ export const SkillExport: React.FC<SkillExportProps> = ({
   const displaySkillMd = frameworkSkillMd ?? skillMd;
   const displayReferences = (frameworkReferences ?? references) ?? {};
   const displayScan = blockedReport ?? frameworkScanReport ?? scanReport;
+  const displayManifest = frameworkManifest ?? manifestJson;
+
+  const summaryTitle = displayManifest?.metadata?.summary_title;
+  const summaryBullets = displayManifest?.metadata?.summary_bullets;
 
   const status: ScanStatus | null = displayScan?.status ?? null;
   const showAcceptCheckbox = status === "WARN" || status === "FAIL";
@@ -316,6 +321,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
       setFrameworkSkillMd(data.skill_md ?? "");
       setFrameworkReferences(data.references ?? {});
       setFrameworkScanReport(data.scan_report ?? null);
+      setFrameworkManifest(data.manifest ?? null);
       setWarnAccepted(false);
       setBlockedReport(null);
     } catch (err: any) {
@@ -358,27 +364,45 @@ export const SkillExport: React.FC<SkillExportProps> = ({
           <span className="bg-slate-700/50 text-slate-400 border border-slate-600/50 px-2.5 py-1 rounded-full">{languageList}</span>
         )}
         <span className="bg-slate-700/50 text-slate-400 border border-slate-600/50 px-2.5 py-1 rounded-full font-mono text-[10px] tracking-wide">agentskills.io v1.0</span>
+        {/* Subtle regenerate — only shown once Engineering Skill is ready */}
+        {frameworkSkillMd && !frameworkLoading && (
+          <button
+            id="skill-regenerate-btn"
+            onClick={handleGenerateFramework}
+            title="Regenerate Engineering Skill"
+            className="ml-auto text-slate-600 hover:text-violet-400 transition-colors p-0.5 rounded"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+            </svg>
+          </button>
+        )}
       </div>
 
-      {/* Engineering Skill header + regenerate button */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-violet-600/20 border border-violet-500/40 text-violet-300">
-            <span>⚡</span> Engineering Skill
-          </span>
-          <span className="text-[11px] text-slate-500">Teaches agents how to act in this repo.</span>
+      {/* Summary Box — only after Engineering Skill is fully generated */}
+      {frameworkSkillMd && (summaryTitle || (summaryBullets && summaryBullets.length > 0)) && (
+        <div className="rounded-xl border border-slate-700/50 bg-slate-900/50 p-5 flex flex-col gap-3">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">SUMMARY</span>
+          {summaryTitle && (
+            <p className="text-xs font-semibold text-slate-200 leading-relaxed">
+              {summaryTitle}
+            </p>
+          )}
+          {summaryBullets && summaryBullets.length > 0 && (
+            <ul className="list-disc pl-4 space-y-2 text-xs text-slate-400">
+              {summaryBullets.map((bullet, idx) => (
+                <li key={idx} className="leading-relaxed pl-1 marker:text-violet-500">
+                  {bullet.replace(/^\s*-\s*/, "")}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        <button
-          id="skill-generate-framework-btn"
-          onClick={handleGenerateFramework}
-          disabled={frameworkLoading}
-          className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-violet-700/40 hover:bg-violet-600/60 border border-violet-600/40 disabled:opacity-50 text-violet-300 hover:text-violet-200 transition-colors"
-        >
-          {frameworkLoading ? (
-            <><svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Generating…</>
-          ) : frameworkSkillMd ? "Regenerate" : "Generate"}
-        </button>
-      </div>
+      )}
+
+
+
+
 
       {/* First-time generation loading state */}
       {frameworkLoading && !frameworkSkillMd && (
@@ -568,7 +592,7 @@ export const SkillExport: React.FC<SkillExportProps> = ({
       <p className="text-xs text-slate-500 text-center">
         Compatible with{" "}
         <a href="https://agentskills.io" target="_blank" rel="noopener noreferrer" className="text-amber-400/80 hover:text-amber-300 underline underline-offset-2">agentskills.io</a>
-        {" "}· Claude Skills · Google ADK · Agno · OpenAI Agents
+        {" "}· Claude Code · Antigravity · Codex · Cursor · Visual Studio Code
       </p>
     </div>
   );

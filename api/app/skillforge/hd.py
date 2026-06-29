@@ -125,8 +125,9 @@ def _framework_prompt(meta: RepoMeta, extract: Extract) -> str:
         "Your goal is to teach the agent HOW TO ACT in this codebase — not just what it contains.\n\n"
         "Use ONLY the structured context below. Do not invent files, APIs, or facts not present.\n\n"
         "Return STRICT JSON with exactly these keys:\n"
-        '  "description": One sentence, trigger-first (max 256 chars). Example: '
-        '"Use when implementing features or fixing bugs in {repo} to follow established patterns.\'\n'
+        '  "description": One sentence, trigger-first (max 256 chars). Example: "Use when implementing features or fixing bugs in {repo} to follow established patterns."\n'
+        '  "summary_title": One sentence capturing the essence/vision/design philosophy of this codebase (max 150 chars). Example: "Distinctive, production-grade frontend interfaces that reject generic AI aesthetics through intentional design choices."\n'
+        '  "summary_bullets": Array of exactly 4 concise, high-impact bullet points summarizing the core engineering rules/philosophy of this repository.\n'
         '  "overview": 2-3 paragraphs. What this skill is for, why it matters for THIS specific '
         "repo, and what an agent must understand before touching the codebase.\n"
         '  "when_to_use": Array of 4-6 short strings. Each is a concrete trigger scenario '
@@ -185,6 +186,8 @@ def generate_framework_prose(meta: RepoMeta, extract: Extract) -> FrameworkProse
 
         return FrameworkProseFields(
             description=data.get("description"),
+            summary_title=data.get("summary_title"),
+            summary_bullets=[str(x) for x in (data.get("summary_bullets") or [])][:4],
             overview=data.get("overview"),
             when_to_use=[str(x) for x in (data.get("when_to_use") or [])][:7],
             when_not_to_use=data.get("when_not_to_use"),

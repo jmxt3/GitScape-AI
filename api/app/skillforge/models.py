@@ -147,7 +147,10 @@ class FrameworkProseFields(BaseModel):
     """
 
     description: Optional[str] = None
+    summary_title: Optional[str] = None
+    summary_bullets: list[str] = Field(default_factory=list)
     overview: Optional[str] = None
+
     when_to_use: list[str] = Field(default_factory=list)
     when_not_to_use: Optional[str] = None
     core_process: list[FrameworkProcessStep] = Field(default_factory=list)

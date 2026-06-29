@@ -150,6 +150,8 @@ export interface SkillManifest {
   scan_status?: ScanStatus;
   framework_compatibility: string[];
   metadata: {
+    summary_title?: string;
+    summary_bullets?: string[];
     source_repo: string;
     generated_by: string;
     generated_by_url?: string;

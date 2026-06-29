@@ -90,6 +90,21 @@ def build_skill(
             "primary_languages": meta.primary_languages,
             "symbols_indexed": extract.api_index.total,
             "modules_indexed": len(extract.api_index.modules),
+            "summary_title": (
+                framework_prose.summary_title
+                if (framework_prose and getattr(framework_prose, "summary_title", None))
+                else assembled.description
+            ),
+            "summary_bullets": (
+                framework_prose.summary_bullets
+                if (framework_prose and getattr(framework_prose, "summary_bullets", []))
+                else [
+                    f"Specialist guidelines for working with the {meta.repo} codebase.",
+                    f"Understanding modules and symbols across {meta.files_analyzed} source files.",
+                    f"Adherence to repository setup, structure, and architecture patterns.",
+                    "Executing automated tests and verifying codebase changes."
+                ]
+            ),
         },
     )
 
